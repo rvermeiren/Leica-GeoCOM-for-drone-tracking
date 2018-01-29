@@ -12,7 +12,11 @@ Repository :
 
 Based on the work of [Maxim Artyom](@art-mx) on this [repository](https://github.com/art-mx/leica_ros_sph)
 
-## Run 
+[Trello](https://trello.com/b/cHMLdS54/m%C3%A9moire)
+
+[Slack](https://tfebuildingwithdrones.slack.com/)
+
+## Run
 
 ```
 python27.exe measure.py
