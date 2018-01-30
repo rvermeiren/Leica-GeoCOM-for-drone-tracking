@@ -1,57 +1,19 @@
-#Copyright (c) 2013, Marcel Schoch, ASL, ETH Zurich, Switzerland
-#You can contact the author at <slynen at ethz dot ch>
-#
-#All rights reserved.
-#
-#Redistribution and use in source and binary forms, with or without
-#modification, are permitted provided that the following conditions are met:
-# * Redistributions of source code must retain the above copyright
-#notice, this list of conditions and the following disclaimer.
-# * Redistributions in binary form must reproduce the above copyright
-#notice, this list of conditions and the following disclaimer in the
-#documentation and/or other materials provided with the distribution.
-# * Neither the name of ETHZ-ASL nor the
-#names of its contributors may be used to endorse or promote products
-#derived from this software without specific prior written permission.
-#
-#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-#DISCLAIMED. IN NO EVENT SHALL ETHZ-ASL BE LIABLE FOR ANY
-#DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-#LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-#ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-#(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-#SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 import serial
 import time
 
-#ser = serial.Serial(
-#    port='/dev/ttyUSB0',
-#    baudrate=115200,
-#    parity=serial.PARITY_NONE,
-#    stopbits=serial.STOPBITS_ONE,
-#    bytesize=serial.EIGHTBITS
-#)
-
-#Documentation in TPS1200_GeoCOM_Manual.pdf
-
 ser = 0
 
-Debug_Level = 1;
+Debug_Level = 0;
 
 class ResponseClass:
-    """Response format as documented in 2.3.1 ASCII Protocol Syntax page 8"""
-    # %R1P, <RC_COM>[,<TrId>]:<RC>[,<P0>,<P1>, ...] <Term>
-    RC_COM = 0  #GeoCOM return code. GRC_OK = 0 means the communication was successuful. Refer 3.7 for error
-    TrId = 0    #Optional transaction ID : normally incremented from 1 to 7. Same value in reply.
-    RC = 0      #Return code from the colled RPC and denotes the successful completion if it is set to 0. Refer to the appendix for error code.
-    parameters = [] #Parameters : valid only for GRC = 0
+    RC_COM = 0
+    TrId = 0
+    RC = 0
+    parameters = []
 
     def setResponse(self, response):
-
+        if(Debug_Level==2) :
+            print 'response = ',response
         # remove the ' from the string, remove the end-line character and split it up
         words = response.replace('\'','').strip().split(',')
         # print words
@@ -67,9 +29,9 @@ class ResponseClass:
                 print 'Problem occurred, Error code: ', self.RC
 
 
-def SerialRequest(request, length = 0, t_timeout = 100):
+def SerialRequest(request, length = 0, t_timeout = 3): #default 3
     if(Debug_Level==2) :
-        print request
+        print 'request = ', request
 
     response = ResponseClass()
     global ser
@@ -90,7 +52,7 @@ def SerialRequest(request, length = 0, t_timeout = 100):
             time.sleep(0.001)
 
         if(time.time()-t_start>=t_timeout) :
-            response.RC = 3077 #3077 : Request timeout (Appendix A page 184)
+            response.RC = 3077
             return response
 
         time.sleep(0.025)	# Short break to make sure serial port is not read while stuff is written
@@ -98,13 +60,13 @@ def SerialRequest(request, length = 0, t_timeout = 100):
         serial_output = ser.read(ser.inWaiting())
         response.setResponse(serial_output)
 
-        if(Debug_Level==2) :
-            print serial_output
+        #if(Debug_Level==2) :
+            #print 'serial_output: ',serial_output
 
 
     except :
         print "Leica TS communication error - not connected?"
-        response.RC = 1 #1 : Unknow error (Appendix A page 184)
+        response.RC = 1
 
     return response
 
@@ -115,19 +77,19 @@ def HexToDec(hex_in):
     return dec_out
 
 
-def CreateRequest(cmd, args):
-    """Request format as documented in 2.3.1 ASCII Protocol Syntax page 7"""
+def CreateRequest(cmd, args=None):
+
     request = '%R1Q,'
     request = request + str(cmd)
     request = request + ':'
 
-    if(len(args)>0) :
-        for i in range(0,len(args)-1) :
-            request = request + str(args[i])
-            request = request + ','
+    if(args!=None):
+	if(len(args)>0):
+		for i in range(0,len(args)-1) :
+		    request = request + str(args[i])
+		    request = request + ','
 
-        request = request + str(args[-1])
-
+        	request = request + str(args[-1])
     return request
 
 
@@ -173,8 +135,7 @@ def COM_CloseConnection():
 
 def COM_SwitchOnTPS(eOnMode=2) :
 
-
-    request = CreateRequest('111',[eOnMode]) #111 : Turn on the station (Section 10.3.2 page 96)
+    request = CreateRequest('111',[eOnMode])
 
     response = SerialRequest(request)
 
@@ -198,7 +159,7 @@ def COM_SwitchOnTPS(eOnMode=2) :
 
 def COM_SwitchOffTPS(eOffMode=0) :
 
-    request = CreateRequest('112',[eOffMode]) #112 : Turn on the station (Section 10.3.3 page 97)
+    request = CreateRequest('112',[eOffMode])
 
     response = SerialRequest(request)
 
@@ -218,8 +179,7 @@ def COM_SwitchOffTPS(eOffMode=0) :
 def CSV_GetDateTime():
     DateTime = []
 
-    response = SerialRequest('%R1Q,5008:') #5008 : Get current Date Time of the station (Section 11.4.5 page 107)
-
+    response = SerialRequest('%R1Q,5008:')
 
     error = 1
     if(response.RC==0) :
@@ -235,30 +195,21 @@ def CSV_GetDateTime():
 
 
     return [error,response.RC,DateTime]
+'''
+AUT_NORMAL = 0, // fast positioning mode
+AUT_PRECISE = 1 // exact positioning mode
+'''
+'''
+AUT_ATRMODE // Possible modes of the target
+// recognition
+AUT_POSITION = 0, // Positioning to the hz- and v-angle
+AUT_TARGET = 1 // Positioning to a target in the
+// environment of the hz- and v-angle.
+'''
 
-def CSV_GetInstrumentNo():
-    serial_no = 0
-    
-    response = SerialRequest('%R1Q,5003:') #5003 : Getting the factory defined instrument number (Section 11.4.1 page 103)
-    
+def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0): #GeoCom manual p41
 
-    error = 1
-    if(response.RC==0) :
-        error = 0
-        
-        serial_no = int(response.parameters[0])
-        
-        if(Debug_Level==1) :
-            print 'Serial number of the station: ', serial_no
-            
-
-        
-    return [error,response.RC,serial_no]
-
-def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0):
-    #Hz : Horizontale (instrument) (rad)
-    #V : Vertical (telescope) (rad)
-    request = CreateRequest('9027',[Hz,V,POSMode, ATRMode, bDummy]) #9027 : Turning the instrument to a specified position (Section 7.4.5 page 49)
+    request = CreateRequest('9027',[Hz,V,POSMode, ATRMode, bDummy])
 
     response = SerialRequest(request)
 
@@ -272,13 +223,10 @@ def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0):
     return [error, response.RC, []]
 
 def AUT_Search(Hz_Area, V_Area, bDummy = 0):
-    #Hz_Area : Horizontale Search Region (instrument) (rad)
-    #V_Area : Vertical Search Region (telescope) (rad)
-    #Note that a search over a big area takes a long time often results in an error
-    request = CreateRequest('9029',[Hz_Area, V_Area, bDummy])#9029 : performing an automatic target search (Section 7.4.8 page 56)
 
+    request = CreateRequest('9029',[Hz_Area, V_Area, bDummy])
 
-    response = SerialRequest(request)
+    response = SerialRequest(request,0, 30)
 
     error = 1
     if(response.RC==0) :
@@ -287,7 +235,7 @@ def AUT_Search(Hz_Area, V_Area, bDummy = 0):
             print 'Target search successful'
     else :
         if(Debug_Level==1) :
-            if(response.RC==8710) :#8710 : No target found (Appendix A page 185)
+            if(response.RC==8710) :
                 print 'No target found'
 
     return [error, response.RC, []]
@@ -299,7 +247,7 @@ def AUT_FineAdjust(dSrchHz=0.1, dSrchV=0.1):
 
     request = CreateRequest('9037',[dSrchHz, dSrchV, 0])
 
-    response = SerialRequest(request)
+    response = SerialRequest(request,0,5)
 
     error = 1
     if(response.RC==0) :
@@ -366,7 +314,7 @@ def EDM_Laserpointer(eOn = 0):
     return [error, response.RC, []]
 
 
-def TMC_DoMeasure(cmd=1, mode=1) :
+def TMC_DoMeasure(cmd=1, mode=1) : #TMC Measurement Modes in geocom manual p.91
 
     request = CreateRequest('2008',[cmd,mode])
 
@@ -404,25 +352,38 @@ def TMC_GetCoordinate(WaitTime=100,mode=1) :
 
     response = SerialRequest(request)
 
-    error = 1
-    if(response.RC==0) :
-        error = 0
+    error = 0
 
-        if(len(response.parameters)==8) :
-            coord = [float(response.parameters[0]),float(response.parameters[1]),float(response.parameters[2])]
+    if(len(response.parameters)==8) :
 
-            if(Debug_Level==1) :
-                print 'Coordinates read successfully: ', coord
+        coord = [float(response.parameters[0]),float(response.parameters[1]),float(response.parameters[2])]
 
-        else :
-            error = 1
+        if(Debug_Level==1) :
+            print 'Coordinates read successfully: ', coord
 
 
     return [error, response.RC, coord]
 
+def TMC_GetStation(WaitTime=100):
+    coord = []
+
+    request = CreateRequest('2009',[WaitTime])
+
+    response = SerialRequest(request)
+
+    error = 0
+
+    if(len(response.parameters)==4) :
+
+        coord = [float(response.parameters[0]),float(response.parameters[1]),float(response.parameters[2]),float(response.parameters[3])]
+
+        if(Debug_Level==1) :
+            print 'Station coordinates received successfully! ',coord
 
 
-def TMC_GetSimpleMea(WaitTime=100, mode = 1) :
+    return [error, response.RC, []]
+
+def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle and distance measurement - geocom manual p.95
     coord = []
     request = CreateRequest('2108',[WaitTime,mode])
 
@@ -434,21 +395,41 @@ def TMC_GetSimpleMea(WaitTime=100, mode = 1) :
         coord = [response.parameters[0],response.parameters[1],response.parameters[2]]
         if(Debug_Level==1) :
             print 'Coordinates read successfully: ', coord
+    if(response.RC==1285) :
+        error = 1285
+        coord = [response.parameters[0],response.parameters[1]]
+        if(Debug_Level==1) :
+            print 'Angles read successfully: ', coord
 
 
     return [error, response.RC, coord]
 
 
-def TMC_GetAngle(mode = 1) :
+def TMC_QuickDist() : #TMC_QuickDist - Returns slope-distance and hz-,v-angle - geocom manual p.100
+    coord = []
+    request = CreateRequest('2117')
+    response = SerialRequest(request)
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        coord = [response.parameters[0],response.parameters[1],response.parameters[2]]
+
+    return [error, response.RC, coord]
+
+
+def TMC_GetAngle(mode = 1) : #geocom manual p.98 TMC_GetAngle5
     coord = []
     request = CreateRequest('2107',[mode])
 
     response = SerialRequest(request)
-
     error = 1
-    if(response.RC==0) :
-        error = 0
-        coord = [response.parameters[0],response.parameters[1]]
+
+    if(len(response.parameters)==2) :
+
+        if(response.RC==0):
+
+            error = 0
+            coord = [response.parameters[0],response.parameters[1]]
 
     return [error, response.RC, coord]
 
@@ -475,7 +456,7 @@ def TMC_GetAngle(mode = 1) :
 ##               4, // LO Standard
 ##        EDM_SINGLE_SRANGE       5, // RL Standard
 ##        EDM_CONT_STANDARD       6, // Standard repeated measurement
-##        EDM_CONT_DYNAMIC        7, // IR Tracking
+##        EDM_CONT_DYNAMIC        7, // IR Tacking
 ##        EDM_CONT_REFLESS        8, // RL Tracking
 ##        EDM_CONT_FAST           9, // Fast repeated measurement
 ##        EDM_AVERAGE_IR          10,// IR Average
@@ -528,9 +509,23 @@ def TMC_GetAngle(mode = 1) :
 #
 #    return [error, response.RC, []]
 
+'''
+enum MOT_MODE #GeoCom manual p83
+{
+MOT_POSIT = 0, // configured for relative postioning
+MOT_OCONST = 1, // configured for constant speed
+// the only valid mode
+// for SetVelocity is MOD_OCONST
+MOT_MANUPOS = 2, // configured for manual positioning
+// default setting
+MOT_LOCK = 3, // configured as "Lock-In"-controller
+MOT_BREAK = 4, // configured as "Brake"-controller
+// do not use 5 and 6
+MOT_TERM = 7 // terminates the controller task
 
-def MOT_StartController(ControlMode=2):
+'''
 
+def MOT_StartController(ControlMode=1): #GeoCom manual p83
     request = CreateRequest('6001',[ControlMode])
 
     response = SerialRequest(request)
@@ -543,6 +538,12 @@ def MOT_StartController(ControlMode=2):
 
     return [error, response.RC, []]
 
+'''
+enum MOT_STOPMODE #GeoCom manual p83
+{
+MOT_NORMAL = 0, // slow down with current acceleration
+MOT_SHUTDOWN = 1 // slow down by switch off power supply
+'''
 
 def MOT_StopController(Mode=0):
 
@@ -558,8 +559,10 @@ def MOT_StopController(Mode=0):
 
 
     return [error, response.RC, []]
+'''
 
-def MOT_SetVelocity(Hz_speed,v_speed) :
+'''
+def MOT_SetVelocity(Hz_speed,v_speed) : #GeoCom manual p85
 
     request = CreateRequest('6004',[Hz_speed,v_speed])
 
@@ -611,11 +614,14 @@ def BAP_SetTargetType(eTargetType = 0) :
     if(response.RC==0) :
         error = 0
         if(Debug_Level==1) :
-            print 'Target set successfully '
+            print 'Target type set successfully '
 
 
     return [error, response.RC, []]
 
+#BAP_TARGET_TYPE
+#BAP_REFL_USE = 0 // with reflector
+#BAP_REFL_LESS = 1 // without reflector
 
 BAP_PRISMTYPE = {0 : ['BAP_PRISM_ROUND', 'Leica Circular Prism'],
                  1 : ['BAP_PRISM_MINI', 'Leica Mini Prism'],
@@ -663,6 +669,20 @@ def BAP_SetPrismType(ePrismType) :
 
     return [error, response.RC, []]
 
+def BAP_SetMeasPrg(eMeasPrg) :
+
+    request = CreateRequest('17019',[eMeasPrg])
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'Measurement program set'
+
+
+    return [error, response.RC, []]
 
 
 BAP_USER_MEASPRG = {0 : ['BAP_SINGLE_REF_STANDARD','Reflector, Standard'],
@@ -677,6 +697,25 @@ BAP_USER_MEASPRG = {0 : ['BAP_SINGLE_REF_STANDARD','Reflector, Standard'],
                     9 : ['BAP_AVG_RLESS_VISIBLE', 'No Reflector, Average'],
                     10 :['BAP_CONT_REF_SYNCHRO', 'Reflector, Synchro Tracking'],
                     11 :['BAP_SINGLE_REF_PRECISE','not available']}
+
+####################################################################################################################################################
+def BAP_MeasDistanceAngle(mode = 6): #GeoCom manual p62
+    coord = []
+
+    request = CreateRequest('17017',[mode])
+
+    response = SerialRequest(request)
+
+    error = None
+
+    if(len(response.parameters)==4) :
+
+        coord = [float(response.parameters[0]),float(response.parameters[1]),float(response.parameters[2]),int(response.parameters[3])]
+
+        if(Debug_Level==1) :
+            print 'Got data successfully: ', coord
+
+    return [error, response.RC, coord]
 
 def BAP_GetMeasPrg() :
 
@@ -697,20 +736,6 @@ def BAP_GetMeasPrg() :
 
     return [error, response.RC, parameter]
 
-def BAP_SetMeasPrg(eMeasPrg) :
-
-    request = CreateRequest('17019',[eMeasPrg])
-
-    response = SerialRequest(request)
-
-    error = 1
-    if(response.RC==0) :
-        error = 0
-        if(Debug_Level==1) :
-            print 'Measurement program set'
-
-
-    return [error, response.RC, []]
 
 def BAP_SearchTarget(bDummy = 0) :
 
@@ -738,7 +763,7 @@ def BAP_SearchTarget(bDummy = 0) :
 
 
 def CAM_TakeImage(CamID = 0):
-    #Not on TPS 1200
+
     request = CreateRequest('23623',[CamID])
 
     response = SerialRequest(request,0,3)
