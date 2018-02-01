@@ -28,6 +28,11 @@ class ResponseClass:
             if(self.RC!=0 and Debug_Level==1) :
                 print 'Problem occurred, Error code: ', self.RC
 
+class SerialRequestError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 def SerialRequest(request, length = 0, t_timeout = 3): #default 3
     if(Debug_Level==2) :
@@ -63,9 +68,10 @@ def SerialRequest(request, length = 0, t_timeout = 3): #default 3
         #if(Debug_Level==2) :
             #print 'serial_output: ',serial_output
 
-
+    except KeyboardInterrupt as e :
+        raise KeyboardInterrupt(e)
     except :
-        print "Leica TS communication error - not connected?"
+        raise SerialRequestError("Leica TS communication error - not connected?")
         response.RC = 1
 
     return response

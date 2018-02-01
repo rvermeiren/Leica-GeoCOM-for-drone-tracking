@@ -19,7 +19,7 @@ Based on the work of [Maxim Artyom](@art-mx) on this [repository](https://github
 ## Run
 
 ```
-python27.exe measure.py
+$ python27.exe measure.py
 -v (verbose)
 -b (big prism -- default = mini-prism)
 -p "#port" (on windows if port is COM4, number is 3)
