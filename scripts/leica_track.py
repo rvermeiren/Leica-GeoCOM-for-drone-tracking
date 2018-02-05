@@ -35,10 +35,10 @@ def usage():
 def connection(options):
     if GeoCom_mod.COM_OpenConnection(int(options.port), options.baudrate )[0]:
         sys.exit("Can not open Port... exiting")
-    GeoCom_mod.COM_SwitchOffTPS()
-    print("Turned off")
-    GeoCom_mod.COM_SwitchOnTPS()
-    print("Turned on")
+    # GeoCom_mod.COM_SwitchOffTPS()
+    # print("Turned off")
+    # GeoCom_mod.COM_SwitchOnTPS()
+    # print("Turned on")
 
     GeoCom_mod.EDM_Laserpointer(1)
     raw_input('Put the laser on x axis and press <enter>')
