@@ -8,7 +8,6 @@ from math import sin,cos
 from optparse import OptionParser
 from operator import neg
 
-
 def searchPrism(Hz, V):
     print("Searching for the prism ...")
     if GeoCom_mod.AUT_Search(math.radians(Hz),math.radians(V))[1] == 0:
@@ -36,6 +35,10 @@ def usage():
 def connection(options):
     if GeoCom_mod.COM_OpenConnection(int(options.port), options.baudrate )[0]:
         sys.exit("Can not open Port... exiting")
+    GeoCom_mod.COM_SwitchOffTPS()
+    print("Turned off")
+    GeoCom_mod.COM_SwitchOnTPS()
+    print("Turned on")
 
     GeoCom_mod.EDM_Laserpointer(1)
     raw_input('Put the laser on x axis and press <enter>')
@@ -56,57 +59,58 @@ def connection(options):
     time.sleep(2)
     print "Leica is set up"
 
+def compute_carthesian(coord):
+    phi = -float(coord[0])
+    theta = float(coord[1])
+    radius = float(coord[2])
+
+    # compute carthesian coordinates
+    point_x = round(sin(theta) * cos(phi) * radius,4)
+    point_y = round(sin(theta) * sin(phi) * radius,4)
+    point_z = round(cos(theta) * radius,4)
+    print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
+
+def get_measure(options):
+    try:
+        # GeoCom get simple measurements
+        [error, RC, coord] = GeoCom_mod.TMC_GetSimpleMea(5, 1)
+
+        if options.debug: print( 'Error: '+ str(error) )
+        if options.debug: print( 'Return Code: '+ str(RC) )
+
+        if RC==0:
+            compute_carthesian(coord)
+
+        elif RC==1284:
+            print( 'Accuracy could not be guaranteed \n' )
+            compute_carthesian(coord)
+
+        elif RC==1285:
+            print('No valid distance measurement! \n')
+
+        else:
+            print( '\n'+'ERROR, Return code: '+str(RC)+'\n')
+
+    except ValueError:
+        print( "Non numeric value recieved!" )
+
+    except GeoCom_mod.SerialRequestError as e :
+        print(e)
+
+################################################################################
+################################### MAIN #######################################
+################################################################################
 
 options = usage()
-connection()
-
-
-loop_count = 1
+connection(options)
 try :
     while True:
-
-        try:
-            #[error, RC, coord] = GeoCom_mod.TMC_GetCoordinate()
-            # GeoCom get simple measurements
-            [error, RC, coord] = GeoCom_mod.TMC_GetSimpleMea(5, 1)
-
-            if options.debug: print( 'Error: '+ str(error) )
-            if options.debug: print( 'Return Code: '+ str(RC) )
-
-            if RC==0:
-                phi = -float(coord[0])
-                theta = float(coord[1])
-                radius = float(coord[2])
-
-                # compute carthesian coordinates
-                point_x = round(sin(theta) * cos(phi) * radius,4)
-                point_y = round(sin(theta) * sin(phi) * radius,4)
-                point_z = round(cos(theta) * radius,4)
-                print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
-
-            elif RC==1284:
-                print( 'Accuracy could not be guaranteed \n' )
-                point_x = sin(theta) * cos(phi) * radius
-                point_y = sin(theta) * sin(phi) * radius
-                point_z = cos(theta) * radius
-                print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
-
-            elif RC==1285:
-                print('No valid distance measurement! \n')
-
-            else:
-                print( '\n'+'ERROR, Return code: '+str(RC)+'\n')
-
-            loop_count = loop_count + 1
-        except ValueError:
-            print( "Non numeric value recieved!" )
-        except GeoCom_mod.SerialRequestError as e :
-            print("Coucou")
-            print(e)
-
+        get_measure(options)
 except KeyboardInterrupt :
+    GeoCom_mod.AUS_SetUserLockState(0)
     GeoCom_mod.COM_CloseConnection()
     sys.exit("KeyboardInterrupt")
 
 # Closing serial connection, when execution is stopped
+GeoCom_mod.AUS_SetUserLockState(0)
 GeoCom_mod.COM_CloseConnection()

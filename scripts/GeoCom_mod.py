@@ -143,7 +143,7 @@ def COM_SwitchOnTPS(eOnMode=2) :
 
     request = CreateRequest('111',[eOnMode])
 
-    response = SerialRequest(request)
+    response = SerialRequest(request,0,60)
 
     if(response.RC==0) :
         error = 0
@@ -167,7 +167,7 @@ def COM_SwitchOffTPS(eOffMode=0) :
 
     request = CreateRequest('112',[eOffMode])
 
-    response = SerialRequest(request)
+    response = SerialRequest(request,0,60)
 
 
     if(response.RC==0) :
@@ -779,6 +779,21 @@ def CAM_TakeImage(CamID = 0):
         error = 0
         if(Debug_Level==1) :
             print 'Prism found!'
+
+
+    return [error, response.RC, []]
+
+def AUS_SetUserLockState(on = 0):
+
+    request = CreateRequest('18007',[on])
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'Lock activated or deactivated'
 
 
     return [error, response.RC, []]
