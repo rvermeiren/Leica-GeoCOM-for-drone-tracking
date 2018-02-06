@@ -253,7 +253,7 @@ def AUT_FineAdjust(dSrchHz=0.1, dSrchV=0.1):
 
     request = CreateRequest('9037',[dSrchHz, dSrchV, 0])
 
-    response = SerialRequest(request,0,5)
+    response = SerialRequest(request,0,30)
 
     error = 1
     if(response.RC==0) :
@@ -440,7 +440,7 @@ def TMC_GetAngle(mode = 1) : #geocom manual p.98 TMC_GetAngle5
     return [error, response.RC, coord]
 
 
-#def TMC_GetEdmMode():
+def TMC_GetEdmMode():
 #
 #    EDM_MODE = {0 : 'EDM_MODE_NOT_USED',
 #                1 : 'EDM_SINGLE_TAPE',
@@ -471,18 +471,18 @@ def TMC_GetAngle(mode = 1) : #geocom manual p.98 TMC_GetAngle5
 ##        EDM_PRECISE_IR          13,// IR Precise (TS30, TM30)
 ##        EDM_PRECISE_TAPE        14,// IR Precise Reflector Tape (TS30, TM30)
 #
-#    request = CreateRequest('2021',[])
-#
-#    response = SerialRequest(request)
-#
-#    error = 1
-#    if(response.RC==0) :
-#        error = 0
-#        if(Debug_Level==1) :
-#            print 'EDM Mode read successfully: '
-#
-#    return [error, response.RC, []]
-#
+   request = CreateRequest('2021',[])
+
+   response = SerialRequest(request)
+
+   error = 1
+   if(response.RC==0) :
+       error = 0
+       if(Debug_Level==1) :
+           print 'EDM Mode read successfully: '
+
+   return [error, response.RC,response.parameters]
+
 #
 #def TMC_SetEdmMode(mode) :
 #
@@ -797,3 +797,48 @@ def AUS_SetUserLockState(on = 0):
 
 
     return [error, response.RC, []]
+
+def AUS_SetUserAtrState(on = 0):
+
+    request = CreateRequest('18005',[on])
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'ATR activated or deactivated'
+
+
+    return [error, response.RC, []]
+
+def AUS_GetUserLockState():
+
+    request = CreateRequest('18008')
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'Lock activated or deactivated'
+
+
+    return [error, response.RC, response.parameters]
+
+def AUS_GetUserAtrState():
+
+    request = CreateRequest('18006')
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'ATR activated or deactivated'
+
+
+    return [error, response.RC, response.parameters]

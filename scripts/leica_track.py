@@ -11,15 +11,19 @@ from operator import neg
 def searchPrism(Hz, V):
     print("Searching for the prism ...")
     if GeoCom_mod.AUT_Search(math.radians(Hz),math.radians(V))[1] == 0:
-        if GeoCom_mod.AUT_FineAdjust(math.radians(Hz/2),math.radians(V/2))[1] != 0:
+        [error, RC, parameters] = GeoCom_mod.AUT_FineAdjust(math.radians(Hz/2),math.radians(V/2))
+        if RC != 0:
             GeoCom_mod.COM_CloseConnection()
             sys.exit("Can not found prism... exiting")
         else :
             print ("Prism found")
-    if GeoCom_mod.AUT_LockIn()[1] == 0:
+    [error, RC, coord] =GeoCom_mod.AUT_LockIn()
+    if RC == 0:
         print("Prism locked")
     else :
         print("Locked fail")
+        print(str(RC))
+        print(str(error))
 
 def usage():
     # Handling options
@@ -35,10 +39,6 @@ def usage():
 def connection(options):
     if GeoCom_mod.COM_OpenConnection(int(options.port), options.baudrate )[0]:
         sys.exit("Can not open Port... exiting")
-    # GeoCom_mod.COM_SwitchOffTPS()
-    # print("Turned off")
-    # GeoCom_mod.COM_SwitchOnTPS()
-    # print("Turned on")
 
     GeoCom_mod.EDM_Laserpointer(1)
     raw_input('Put the laser on x axis and press <enter>')
@@ -69,8 +69,12 @@ def compute_carthesian(coord):
     point_y = round(sin(theta) * sin(phi) * radius,4)
     point_z = round(cos(theta) * radius,4)
     print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
+    with open("msg.txt", "a") as file:
+        file.write(str(point_x)+","+str(point_y)+","+str(point_z)+"\n")
+
 
 def get_measure(options):
+    old_coord = [0,0,0]
     try:
         # GeoCom get simple measurements
         [error, RC, coord] = GeoCom_mod.TMC_GetSimpleMea(5, 1)
@@ -80,10 +84,11 @@ def get_measure(options):
 
         if RC==0:
             compute_carthesian(coord)
+            old_coord = coord
 
         elif RC==1284:
             print( 'Accuracy could not be guaranteed \n' )
-            compute_carthesian(coord)
+            compute_carthesian(old_coord)
 
         elif RC==1285:
             print('No valid distance measurement! \n')
@@ -104,13 +109,16 @@ def get_measure(options):
 options = usage()
 connection(options)
 try :
+    i = 0
     while True:
+        i+=1
         get_measure(options)
 except KeyboardInterrupt :
-    GeoCom_mod.AUS_SetUserLockState(0)
+    #GeoCom_mod.AUS_SetUserLockState(0)
+    GeoCom_mod.TMC_SetEdmMode(0)
     GeoCom_mod.COM_CloseConnection()
     sys.exit("KeyboardInterrupt")
 
 # Closing serial connection, when execution is stopped
-GeoCom_mod.AUS_SetUserLockState(0)
+GeoCom_mod.TMC_SetEdmMode(0)
 GeoCom_mod.COM_CloseConnection()
