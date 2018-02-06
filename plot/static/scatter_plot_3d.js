@@ -1,5 +1,5 @@
-/* 
-  The following code is widely inspired by Harry Voorhees’s 3D scatter plot using d3, x3dom: 
+/*
+  The following code is widely inspired by Harry Voorhees’s 3D scatter plot using d3, x3dom:
   http://bl.ocks.org/hlvoorhees/5986172
 */
 
@@ -9,12 +9,12 @@ function scatterPlot3d( parent )
 /**********************
 **** Initialization ***
 ***********************/
-  var x3d = parent  
+  var x3d = parent
     .append("x3d")
       .style( "width", parseInt(parent.style("width"))+"px" )
       .style( "height", parseInt(parent.style("height"))+"px" )
       .style( "border", "none" )
-      
+
   var scene = x3d.append("scene")
 
   scene.append("orthoviewpoint")
@@ -23,9 +23,9 @@ function scatterPlot3d( parent )
      .attr( "orientation", [-0.5, 1, 0.2, 1.12*Math.PI/4])
      .attr( "position", [8, 4, 15])
 
-  var axisRange = [0, 20];
+  var axisRange = [0, 10];
   var scales = [];
-  var duration = 100;
+  var duration = 10;
   var ease = 'linear';
   var axisKeys = ["x", "y", "z"]
 
@@ -110,9 +110,9 @@ function scatterPlot3d( parent )
   function drawAxis( axisIndex, key, duration ) {
 
     var scale = d3.scale.linear()
-      .domain( [-10,10] ) // demo data range
+      .domain( [-5,10] ) // demo data range
       .range( axisRange )
-    
+
     scales[axisIndex] = scale;
 
     var numTicks = 8;
@@ -130,7 +130,7 @@ function scatterPlot3d( parent )
         .attr("size", tickSize + " " + tickSize + " " + tickSize);
     // enter + update
     ticks.transition().duration(duration)
-      .attr("translation", function(tick) { 
+      .attr("translation", function(tick) {
          return constVecWithAxisValue( 0, scale(tick), axisIndex ); })
     ticks.exit().remove();
 
@@ -139,7 +139,7 @@ function scatterPlot3d( parent )
       .data(function(d) { return [d]; });
     var newTickLabels = tickLabels.enter()
       .append("billboard")
-         .attr("axisOfRotation", "0 0 0")     
+         .attr("axisOfRotation", "0 0 0")
       .append("shape")
       .call(makeSolid)
     newTickLabels.append("text")
@@ -159,7 +159,7 @@ function scatterPlot3d( parent )
       var gridLines = scene.selectAll( "."+axisName("GridLine", axisIndex))
          .data(scale.ticks( numTicks ));
       gridLines.exit().remove();
-      
+
       var newGridLines = gridLines.enter()
         .append("transform")
           .attr("class", axisName("GridLine", axisIndex))
@@ -179,7 +179,7 @@ function scatterPlot3d( parent )
             ? function(d) { return scale(d) + " 0 0"; }
             : function(d) { return "0 0 " + scale(d); }
           )
-    }  
+    }
   }
 
 
@@ -190,7 +190,7 @@ function scatterPlot3d( parent )
 
   // Update the data points (spheres).
   function plotData( pointObject ) {
-    
+
     var x = scales[0], y = scales[1], z = scales[2];
 
     // Draw a sphere at the coordinates of pointObject
@@ -207,7 +207,7 @@ function scatterPlot3d( parent )
     .append('sphere')
     .attr('radius', 0.1);
     */
-    
+
     // Draw points currently in the dataFromServer array
     var sphereRadius = 0.1;
     var datapoints = scene.selectAll(".datapoint").data( dataFromServer );
@@ -229,7 +229,7 @@ function scatterPlot3d( parent )
     datapoints.selectAll("shape appearance material")
         .attr("diffuseColor", 'steelblue' )
 
-    datapoints.attr("translation", function(row) { 
+    datapoints.attr("translation", function(row) {
           return x(row[axisKeys[0]]) + " " + y(row[axisKeys[1]]) + " " + z(row[axisKeys[2]])})
   }
 
@@ -280,14 +280,14 @@ function scatterPlot3d( parent )
 function getCoordinates(pointString) {
   var tmp = pointString.split(",");
   var x = parseFloat(tmp[0]);
-  var y = parseFloat(tmp[1]);
-  var z = parseFloat(tmp[2]);
+  var y = parseFloat(tmp[2]);
+  var z = parseFloat(tmp[1]);
   var point = {x:x, y:y, z:z};
   return point;
 }
 
 /*
-- Keep a list of all current points in the graph, update whole 
+- Keep a list of all current points in the graph, update whole
 graph when a new point is added (recreate x3d etc?)
   - plot.html would call "scatterPlot3dGlobal"
   - scatterPlot3dGlobal would call scatterPlot3d every time it

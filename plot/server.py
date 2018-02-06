@@ -1,8 +1,11 @@
-#!flask/bin/python    
 
 import sys, time, threading, Queue
 
+
 from flask import Flask, Response, render_template, send_from_directory, url_for#, request, redirect
+
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 q = Queue.Queue()
 
@@ -30,10 +33,10 @@ def output():
 	return render_template('plot3d.html')
 
 # Get icon
-@app.route("/favicon.ico")
-def favicon():
-    app.add_url_rule('/favicon.ico',
-                 redirect_to=url_for('static', filename='favicon.ico'))
+# @app.route("/favicon.ico")
+# def favicon():
+#     app.add_url_rule('/favicon.ico',
+#                  redirect_to=url_for('static', filename='favicon.ico'))
 
 # Upon request, send the next point in the queue
 @app.route('/server')
@@ -45,6 +48,6 @@ def send_data():
 		return elem
 
 if __name__ == '__main__':
-	t_read = threading.Thread(target=read_data_file, args = ('msg.txt',))
+	t_read = threading.Thread(target=read_data_file, args = ('..\scripts\msg.txt',))
 	t_read.start()
 	app.run()
