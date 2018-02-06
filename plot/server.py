@@ -2,7 +2,7 @@
 
 import sys, Queue
 
-from flask import Flask, Response, render_template, send_from_directory#, request, redirect
+from flask import Flask, Response, render_template, send_from_directory, url_for#, request, redirect
 
 q = Queue.Queue()
 for i in range(-5,5):
@@ -13,7 +13,7 @@ app = Flask(__name__)
 # Render html file
 @app.route('/')
 def output():
-	return render_template('plot.html')
+	return render_template('plot3d.html')
 
 # Get icon
 @app.route("/favicon.ico")
