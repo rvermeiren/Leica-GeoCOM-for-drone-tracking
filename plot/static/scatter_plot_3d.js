@@ -25,7 +25,7 @@ function scatterPlot3d( parent )
 
   var axisRange = [0, 20];
   var scales = [];
-  var duration = 2000;
+  var duration = 100;
   var ease = 'linear';
   var axisKeys = ["x", "y", "z"]
 

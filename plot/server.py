@@ -1,12 +1,26 @@
-#!flask/bin/python
+#!flask/bin/python    
 
-import sys, Queue
+import sys, time, threading, Queue
 
 from flask import Flask, Response, render_template, send_from_directory, url_for#, request, redirect
 
 q = Queue.Queue()
-for i in range(-5,5):
-	q.put((float(i), float(i), float(i)))
+
+def follow(thefile):
+    thefile.seek(0,2)
+    while True:
+        line = thefile.readline()
+        if not line:
+        	time.sleep(0.1)
+        	continue
+        yield line
+
+def read_data_file(file):
+	datafile = open(file, "r")
+	lines = follow(datafile)
+	for line in lines:
+		print("Adding point in queue")
+		q.put(line, True)
 
 app = Flask(__name__)
 
@@ -27,14 +41,10 @@ def send_data():
 	if q.empty():
 		return Response("No data available", 204)
 	else:
-		elem = q.get()
-		return str(elem[0]) + "," + str(elem[1]) + "," + str(elem[2])
+		elem = q.get(True)
+		return elem
 
 if __name__ == '__main__':
+	t_read = threading.Thread(target=read_data_file, args = ('msg.txt',))
+	t_read.start()
 	app.run()
-
-"""
-- python server constantly gets the output coordinates from python script
-- When JS GET on /server, the python server sends the last point in the queue
-
-"""
