@@ -14,6 +14,10 @@ sys.setdefaultencoding('utf8')
 old_coord=[0,0,0]
 
 def searchPrism(Hz, V):
+    """Search for the prism in the giver area
+
+
+    """
     print("Searching for the prism ...")
     if GeoCom_mod.AUT_Search(math.radians(Hz),math.radians(V))[1] == 0:
         [error, RC, parameters] = GeoCom_mod.AUT_FineAdjust(math.radians(Hz/2),math.radians(V/2))
@@ -32,7 +36,7 @@ def searchPrism(Hz, V):
 
 def usage():
     """
-    Define and show 
+    Define and show usage of the script
     """
     # Handling options
     usage = "usage: rosrun leica_interface %prog [options]"

@@ -1,21 +1,26 @@
 # Development of a guidance and automatic positioning system for builder drones with a total station
 
+## Credit
+
 Authors : [Nicolas Sorensen](@nicolassorensen) & [Rémy Vermeiren](@rvermeiren)
 
 Promotor : [Pierre Latteur](https://uclouvain.be/fr/repertoires/pierre.latteur) & [Ramin Sadre](https://uclouvain.be/fr/repertoires/ramin.sadre)
 
 Assistant : [Sebastien Goessens](https://uclouvain.be/fr/repertoires/sebastien.goessens)
 
-[Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
-[Python documentation convention](https://www.python.org/dev/peps/pep-0258/)
-
-Repository :
+### Repository :
 
 Based on the work of [Maxim Artyom](@art-mx) on this [repository](https://github.com/art-mx/leica_ros_sph)
 
 [Trello](https://trello.com/b/cHMLdS54/m%C3%A9moire)
 
 [Slack](https://tfebuildingwithdrones.slack.com/)
+
+### Resources
+
+[Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+
+[Python documentation convention](https://www.python.org/dev/peps/pep-0258/)
 
 ## Requirements
 - Windows 10
