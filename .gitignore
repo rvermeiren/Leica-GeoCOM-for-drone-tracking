@@ -2,7 +2,6 @@ build
 CMakeCache.txt
 msg_gen
 bin
-src
 *.pyc
 *.dox
 *~
