@@ -7,6 +7,7 @@ Promotor : [Pierre Latteur](https://uclouvain.be/fr/repertoires/pierre.latteur) 
 Assistant : [Sebastien Goessens](https://uclouvain.be/fr/repertoires/sebastien.goessens)
 
 [Markdown Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)
+[Python documentation convention](https://www.python.org/dev/peps/pep-0258/)
 
 Repository :
 
@@ -16,24 +17,28 @@ Based on the work of [Maxim Artyom](@art-mx) on this [repository](https://github
 
 [Slack](https://tfebuildingwithdrones.slack.com/)
 
-## Run
+## Requirements
+- Windows 10
+- Leica cable GEV267
+- Total station with GeoCom support
+- [python27](https://www.python.org/download/releases/2.7/)
+- [pyserial](https://pypi.python.org/pypi/pyserial/2.7)
 
+## Run
 ```
-$ python27.exe measure.py
--v (verbose)
+$ python27.exe leica_track.py
+-d (verbose)
 -b (big prism -- default = mini-prism)
 -p "#port" (on windows if port is COM4, number is 3)
 
 ```
-
-
-
-
-<!--
-Plot in 3D from out.txt files:
-
+## Usage
+Use ```-h``` to show usage
 ```
-./filter.py out.txt | ./plot.py
-```
-
-(ensure numpy and matplotlib are installed and the python scripts executable (chmod 777)) -->
+  Options:
+  -h,           --help            show this help message and exit
+  -p PORT,      --port=PORT       specify used port [default: /dev/ttyUSB0]
+  -b BAUDRATE,  --baudrate=BAUDRATE
+                                  specify used baudrate [default: 115200]
+  -d, --debug                     show debug information
+  ```

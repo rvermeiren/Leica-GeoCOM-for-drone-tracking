@@ -31,6 +31,9 @@ def searchPrism(Hz, V):
         print(str(error))
 
 def usage():
+    """
+    Define and show 
+    """
     # Handling options
     usage = "usage: rosrun leica_interface %prog [options]"
     parser = OptionParser(usage=usage)
