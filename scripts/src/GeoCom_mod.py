@@ -2,7 +2,6 @@ import serial
 import time
 
 ser = 0
-
 Debug_Level = 0;
 
 class ResponseClass:
@@ -24,6 +23,7 @@ class ResponseClass:
             self.RC = int(words2[1])
 
             self.parameters = words[3:len(words)]
+
 
             if(self.RC!=0 and Debug_Level==1) :
                 print 'Problem occurred, Error code: ', self.RC
