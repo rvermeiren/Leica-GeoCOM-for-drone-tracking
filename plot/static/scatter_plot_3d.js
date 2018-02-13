@@ -23,9 +23,9 @@ function scatterPlot3d( parent )
      .attr( "orientation", [-0.5, 1, 0.2, 1.12*Math.PI/4])
      .attr( "position", [8, 4, 15])
 
-  var axisRange = [0, 10];
+  var axisRange = [0, 10]; // Always an interval [0, n]
   var scales = [];
-  var duration = 10;
+  var duration = 10; // Default duration before next request to server, in ms
   var ease = 'linear';
   var axisKeys = ["x", "y", "z"]
 
@@ -193,21 +193,6 @@ function scatterPlot3d( parent )
 
     var x = scales[0], y = scales[1], z = scales[2];
 
-    // Draw a sphere at the coordinates of pointObject
-    /*var datapoints = scene.selectAll(".datapoint").data(po);
-    datapoints.exit().remove();
-    datapoints.enter()
-    .append('transform')
-    .attr('class', 'datapoint')
-    .attr('translation', function(d){
-        return x(d.x) + ' ' + y(d.y) + ' ' + z(d.z); // x, y, z functions correspond to above scales
-    })
-    .append('shape')
-    .call(makeSolid, 'red')
-    .append('sphere')
-    .attr('radius', 0.1);
-    */
-
     // Draw points currently in the dataFromServer array
     var sphereRadius = 0.1;
     var datapoints = scene.selectAll(".datapoint").data( dataFromServer );
@@ -285,17 +270,3 @@ function getCoordinates(pointString) {
   var point = {x:x, y:y, z:z};
   return point;
 }
-
-/*
-- Keep a list of all current points in the graph, update whole
-graph when a new point is added (recreate x3d etc?)
-  - plot.html would call "scatterPlot3dGlobal"
-  - scatterPlot3dGlobal would call scatterPlot3d every time it
-  receives new data
-  - scatterPlot3d(parent, data)
-  - getData() would be in the scope of scatterPlot3dGlobal, and give
-  the data to scatterplot3d
-  - after initializePlot, call updateData with the point given to scatterPlot3d
-  - Keep the list of points in scatterPlot3dGlobal
-  - If giving many points to .data(..) works, just give to scatterPlot3d the whole update list
-*/
