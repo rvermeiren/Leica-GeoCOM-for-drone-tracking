@@ -98,6 +98,13 @@ def CreateRequest(cmd, args=None):
         	request = request + str(args[-1])
     return request
 
+"""#############################################################################
+########################### COM - COMMUNICATION ################################
+################################################################################
+Communication; functions to access some aspects of TPS1200 control, which are
+close to communication.
+These functions relate either to the client side or to the server side.
+"""
 
 def COM_OpenConnection(ePort, eRate, nRetries=5):
 
@@ -182,6 +189,13 @@ def COM_SwitchOffTPS(eOffMode=0) :
 
     return [error,response.RC,[]]
 
+"""#############################################################################
+########################## CSV - CENTRAL SERVICES ##############################
+################################################################################
+Central Services; this module provides functions to get or set central/basic
+information about the TPS1200 instrument.
+"""
+
 def CSV_GetDateTime():
     DateTime = []
 
@@ -201,6 +215,15 @@ def CSV_GetDateTime():
 
 
     return [error,response.RC,DateTime]
+
+
+"""#############################################################################
+########################## AUT - AUTOMATISATION ################################
+################################################################################
+Automatisation; a module which provides functions like the control of the
+Automatic Target Recognition, Change Face function or Positioning functions.
+"""
+
 '''
 AUT_NORMAL = 0, // fast positioning mode
 AUT_PRECISE = 1 // exact positioning mode
@@ -277,33 +300,12 @@ def AUT_LockIn() :
 
     return [error, response.RC, []]
 
+"""#############################################################################
+#################### EDM - Electronic Distance Meter ###########################
+################################################################################
+Electronic Distance Meter; the module, which measures distances.
 
-def BAP_SetPrismType(PrismType = 7):
-
-    request = CreateRequest('17008',[PrismType])
-
-    response = SerialRequest(request)
-
-    error = 1
-    if(response.RC==0) :
-        error = 0
-
-    return [error, response.RC, []]
-
-
-def TMC_SetOrientation():
-
-    request = CreateRequest('2113',[0])
-
-    response = SerialRequest(request)
-
-    error = 1
-    if(response.RC==0) :
-        error = 0
-
-    return [error, response.RC, []]
-
-
+"""
 def EDM_Laserpointer(eOn = 0):
 
     request = CreateRequest('1004',[eOn])
@@ -319,6 +321,23 @@ def EDM_Laserpointer(eOn = 0):
 
     return [error, response.RC, []]
 
+"""#############################################################################
+################ TMC - Theodolite Measurement and Calculation ##################
+################################################################################
+Theodolite Measurement and Calculation; the core module for getting measurement
+data.
+"""
+def TMC_SetOrientation():
+
+    request = CreateRequest('2113',[0])
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+
+    return [error, response.RC, []]
 
 def TMC_DoMeasure(cmd=1, mode=1) : #TMC Measurement Modes in geocom manual p.91
 
@@ -515,6 +534,13 @@ def TMC_GetEdmMode():
 #
 #    return [error, response.RC, []]
 
+"""#############################################################################
+########################## MOT - Motorization ##################################
+################################################################################
+Motorization; the part, which can be used to control the movement and the speed
+of movements of the instrument.
+"""
+
 '''
 enum MOT_MODE #GeoCom manual p83
 {
@@ -583,15 +609,28 @@ def MOT_SetVelocity(Hz_speed,v_speed) : #GeoCom manual p85
 
     return [error, response.RC, []]
 
+"""#############################################################################
+######################## BAP - Basic Applications ##############################
+################################################################################
+Basic Applications; some functions, which can easily be used to get measuring
+data.
+"""
+def BAP_SetPrismType(PrismType = 7):
 
+    request = CreateRequest('17008',[PrismType])
+
+    response = SerialRequest(request)
+
+    error = 1
+    if(response.RC==0) :
+        error = 0
+
+    return [error, response.RC, []]
 
 BAP_TARGET_TYPE = { 0 : 'BAP_REFL_USE', # with reflector
                     1 : 'BAP_REFL_LESS'} # without reflector
 
 def BAP_GetTargetType() :
-
-
-
     parameter = []
     request = CreateRequest('17022',[])
 
@@ -704,7 +743,6 @@ BAP_USER_MEASPRG = {0 : ['BAP_SINGLE_REF_STANDARD','Reflector, Standard'],
                     10 :['BAP_CONT_REF_SYNCHRO', 'Reflector, Synchro Tracking'],
                     11 :['BAP_SINGLE_REF_PRECISE','not available']}
 
-####################################################################################################################################################
 def BAP_MeasDistanceAngle(mode = 6): #GeoCom manual p62
     coord = []
 
@@ -767,22 +805,12 @@ def BAP_SearchTarget(bDummy = 0) :
 
     return [error, response.RC, []]
 
-
-def CAM_TakeImage(CamID = 0):
-
-    request = CreateRequest('23623',[CamID])
-
-    response = SerialRequest(request,0,3)
-
-    error = 1
-    if(response.RC==0) :
-        error = 0
-        if(Debug_Level==1) :
-            print 'Prism found!'
-
-
-    return [error, response.RC, []]
-
+"""#############################################################################
+############################## AUS - ALT User ##################################
+################################################################################
+The subsystem "Alt User" mainly contains functions behind the "SHIFT" + "USER"
+button.
+"""
 def AUS_SetUserLockState(on = 0):
 
     request = CreateRequest('18007',[on])

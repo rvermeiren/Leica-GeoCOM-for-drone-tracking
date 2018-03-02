@@ -3,7 +3,7 @@
 import sys
 import time
 import math
-import GeoCom_mod
+import GeoCom
 from math import sin,cos
 from optparse import OptionParser
 from operator import neg
@@ -21,14 +21,14 @@ def searchPrism(Hz, V):
         OUT boolean : true if the prism is locked
     """
     print("Searching for the prism ...")
-    if GeoCom_mod.AUT_Search(math.radians(Hz),math.radians(V))[1] == 0:
-        [error, RC, parameters] = GeoCom_mod.AUT_FineAdjust(math.radians(Hz/2),math.radians(V/2))
+    if GeoCom.AUT_Search(math.radians(Hz),math.radians(V))[1] == 0:
+        [error, RC, parameters] = GeoCom.AUT_FineAdjust(math.radians(Hz/2),math.radians(V/2))
         if RC != 0:
-            GeoCom_mod.COM_CloseConnection()
+            GeoCom.COM_CloseConnection()
             sys.exit("Can not found prism... exiting")
         else :
             print ("Prism found")
-    [error, RC, coord] = GeoCom_mod.AUT_LockIn()
+    [error, RC, coord] = GeoCom.AUT_LockIn()
     if RC == 0:
         print("Prism locked")
         return True
@@ -50,7 +50,7 @@ def usage():
     parser.add_option("-p", "--port", action="store", type="string", dest="port", help="specify used port [default: %default]")
     parser.add_option("-b", "--baudrate", action="store", type="int", dest="baudrate", help="specify used baudrate [default: %default]")
     parser.add_option("-d", "--debug", action="store_true", dest="debug", help="print debug information")
-    parser.add_option("-b", "--big", action="store_true", dest="big_prism", help="set the big prism as prism type [default: mini prism]")
+    parser.add_option("-B", "--Big", action="store_true", dest="big_prism", help="set the big prism as prism type [default: mini prism]")
     (options, args) = parser.parse_args()
     if options.debug : DEBUG = True
     return options
@@ -61,14 +61,14 @@ def connection(options):
         IN optionsList options: contains the options to configure the connection
         OUT system exit if connection failed
     """
-    if GeoCom_mod.COM_OpenConnection(int(options.port), options.baudrate )[0]:
+    if GeoCom.COM_OpenConnection(int(options.port), options.baudrate )[0]:
         sys.exit("Can not open Port... exiting")
 
 def set_x_axis():
     """
     Set the orientation of the carthesian plan by fixing x axis
     """
-    [error, RC, args] = GeoCom_mod.TMC_SetOrientation()
+    [error, RC, args] = GeoCom.TMC_SetOrientation()
     print("Carthesian coordinates system set, station is 000 and laser directed on x axis")
 
 def set_prism_type(big_prism):
@@ -79,14 +79,14 @@ def set_prism_type(big_prism):
         prism_type = 3 #big 360 prism
     else:
         prism_type = 7 #small 360 prism
-    [error, RC, args] = GeoCom_mod.BAP_SetPrismType(prism_type)
+    [error, RC, args] = GeoCom.BAP_SetPrismType(prism_type)
 
 def set_laser(value):
     """
     Turn the laser on/off
         IN integer value: (value=1) or off (value=0)
     """
-    [error, RC, args] = GeoCom_mod.EDM_Laserpointer(value)
+    [error, RC, args] = GeoCom.EDM_Laserpointer(value)
 
 def setup_station(options):
     """
@@ -103,8 +103,8 @@ def setup_station(options):
     set_laser(0)
     searchPrism(40,20)
 
-    GeoCom_mod.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
-    GeoCom_mod.TMC_DoMeasure()
+    GeoCom.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
+    GeoCom.TMC_DoMeasure()
     time.sleep(1)
     print("Leica is set up")
 
@@ -133,7 +133,7 @@ def get_measure(options):
     """
     global OLD_COORD
     try:
-        [error, RC, coord] = GeoCom_mod.TMC_GetSimpleMea(5, 1)
+        [error, RC, coord] = GeoCom.TMC_GetSimpleMea(5, 1)
         if options.debug: print( 'Error: '+ str(error) )
         if options.debug: print( 'Return Code: '+ str(RC) )
         if RC==0:
@@ -149,7 +149,7 @@ def get_measure(options):
             print('\n'+'ERROR, Return code: '+str(RC)+'\n')
     except ValueError:
         print( "Non numeric value recieved!" )
-    except GeoCom_mod.SerialRequestError as e :
+    except GeoCom.SerialRequestError as e :
         print(e)
 
 """#############################################################################
@@ -163,9 +163,9 @@ try :
     while True: #while program not interrupted by the user
         get_measure(options)
 except KeyboardInterrupt :
-    #GeoCom_mod.AUS_SetUserLockState(0)
-    GeoCom_mod.COM_CloseConnection()
+    #GeoCom.AUS_SetUserLockState(0)
+    GeoCom.COM_CloseConnection()
     sys.exit("Keyboard Interruption by user")
 
 # Closing serial connection, when execution is stopped
-GeoCom_mod.COM_CloseConnection()
+GeoCom.COM_CloseConnection()
