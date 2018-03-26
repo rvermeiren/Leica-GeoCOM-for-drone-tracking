@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append(r"C:\Python27\Lib")
-# sys.path.append(r"C:\Python27\Lib\site-packages")
-sys.path.append(r"src")
 import time
 import math
 import GeoCom
@@ -13,7 +10,9 @@ from operator import neg
 
 
 reload(sys)
-
+sys.setdefaultencoding('utf8')
+OLD_COORD=[0,0,0]
+DEBUG=False
 
 def searchPrism(Hz, V):
     """Search for the prism in the given area
@@ -38,6 +37,8 @@ def searchPrism(Hz, V):
         print(str(RC))
         print(str(error))
         return False
+        GeoCom.COM_CloseConnection()
+        sys.exit("Can not lock prism... exiting")
 
 def usage():
     """
@@ -91,7 +92,7 @@ def set_laser(value):
     """
     [error, RC, args] = GeoCom.EDM_Laserpointer(value)
 
-def setup_station_manual(options):
+def setup_station(options):
     """
     Setup the station for the purpose of tracking a prism and make fast reapeated measurements
         IN optionsList options: contains the options to configure the station
@@ -111,16 +112,6 @@ def setup_station_manual(options):
     time.sleep(1)
     print("Leica is set up")
 
-def setup_station(options):
-    set_laser(1)
-    time.sleep(10)
-    set_x_axis()
-    set_prism_type(options.big_prism)
-    set_laser(0)
-    searchPrism(40,20)
-    time.sleep(1)
-
-
 def compute_carthesian(phi,theta,radius):
     """
     Compute carthesian coordinates using vertical, horizontale angles and distance measurements
@@ -134,84 +125,59 @@ def compute_carthesian(phi,theta,radius):
     point_z = round(cos(theta) * radius,4)
 
     #print the coordinates
-    # print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
-    return ('0;'+str(point_x)+';'+str(point_y)+';'+str(point_z)+';')
+    #print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
 
     #write point in file
-    #with open("msg.txt", "a") as file:
-    #    file.write(str(point_x)+","+str(point_y)+","+str(point_z)+"\n")
+    with open("msg.txt", "a") as file:
+        file.write(str(point_x)+","+str(point_y)+","+str(point_z)+"\n")
 
-def get_measure():
+def get_measure(options):
     """
     Ask to the station angles and distance and handling it
     """
     global OLD_COORD
     try:
         [error, RC, coord] = GeoCom.TMC_GetSimpleMea(1, 1)
-        # if options.debug: print( 'Error: '+ str(error) )
-        # if options.debug: print( 'Return Code: '+ str(RC) )
+        if options.debug: print( 'Error: '+ str(error) )
+        if options.debug: print( 'Return Code: '+ str(RC) )
         if RC==0:
+            compute_carthesian(-float(coord[0]),float(coord[1]),float(coord[2]))
             OLD_COORD = coord
-            res = compute_carthesian(-float(coord[0]),float(coord[1]),float(coord[2]))
-            # print(res)
-            return res
-
-        # elif RC==1284:
-        #     print('Accuracy could not be guaranteed \n')
-        #     coord = OLD_COORD
-        #     compute_carthesian(float(coord[0]),float(coord[1]),float(coord[2]))
-        # elif RC==1285:
-        #     print('No valid distance measurement! \n')
+        elif RC==1284:
+            print('Accuracy could not be guaranteed \n')
+            coord = OLD_COORD
+            compute_carthesian(float(coord[0]),float(coord[1]),float(coord[2]))
+        elif RC==1285:
+            print('No valid distance measurement! \n')
         else:
             print('\n'+'ERROR, Return code: '+str(RC)+'\n')
-            return "1"
     except ValueError:
-        #print( "Non numeric value recieved!" )
-        return "2"
+        print( "Non numeric value recieved!" )
     except GeoCom.SerialRequestError as e :
-        return "3"
-        # print(e)
-
-def open():
-    # try :
-    options = usage()
-    connection(options)
-    setup_station(options)
-    print "cool"
-    return 1
-    # except as e:
-    #     return e
-
-def close():
-    j=GeoCom.COM_CloseConnection()
-    return j[0]
-
+        print(e)
 
 """#############################################################################
 ################################### MAIN #######################################
 #############################################################################"""
-# options = usage()
-# options = usage()
-# connection(options)
-# setup_station(options)
+options = usage()
+connection(options)
+setup_station(options)
 
-# open()
-#
-# try :
-#     while True: #while program not interrupted by the user
-#         #t_start = time.time()
-#         print get_measure()
-#         #t_end = time.time()
-#         #print(t_end-t_start)
-# except KeyboardInterrupt :
-#     time.sleep(2)
-#     i=GeoCom.COM_SwitchOffTPS()
-#
-#     j=GeoCom.COM_CloseConnection()
-#
-#
-#
-#     sys.exit("Keyboard Interruption by user")
-#
-# # Closing serial connection, when execution is stopped
-# GeoCom.COM_CloseConnection()
+try :
+    while True: #while program not interrupted by the user
+        t_start = time.time()
+        get_measure(options)
+        t_end = time.time()
+        print(t_end-t_start)
+except KeyboardInterrupt :
+    time.sleep(2)
+    i=GeoCom.COM_SwitchOffTPS()
+
+    j=GeoCom.COM_CloseConnection()
+
+
+
+    sys.exit("Keyboard Interruption by user")
+
+# Closing serial connection, when execution is stopped
+GeoCom.COM_CloseConnection()

@@ -1,8 +1,12 @@
+import sys
+sys.path.append(r"C:\Python27\Lib")
+sys.path.append(r"C:\Python27\Lib\site-packages")
 import serial
 import time
 
 ser = 0
 Debug_Level = 0;
+GTrId = 0;
 
 class ResponseClass:
     RC_COM = 0
@@ -34,10 +38,14 @@ class SerialRequestError(Exception):
     def __str__(self):
         return repr(self.value)
 
+def getTrId(request):
+    words = request.replace('\'','').strip().split(',')[2].split(':')
+    return int(words[0])
+
 def SerialRequest(request, length = 0, t_timeout = 3): #default 3
     if(Debug_Level==2) :
         print 'request = ', request
-
+    id = getTrId(request)
     response = ResponseClass()
     global ser
 
@@ -64,6 +72,9 @@ def SerialRequest(request, length = 0, t_timeout = 3): #default 3
 
         serial_output = ser.read(ser.inWaiting())
         response.setResponse(serial_output)
+        if response.TrId != id :
+            response.RC = 3077
+            return response
 
         #if(Debug_Level==2) :
             #print 'serial_output: ',serial_output
@@ -84,10 +95,16 @@ def HexToDec(hex_in):
 
 
 def CreateRequest(cmd, args=None):
-
-    request = '%R1Q,'
-    request = request + str(cmd)
+    """[<LF>]%R1Q,<RPC>[,<TrId>]:[<P0>][,<P1>,...]<Term> """
+    global GTrId
+    #\n is LF flag to flush buffer
+    request = '\n%R1Q,'
+    request = request + str(cmd)+ ',' + str(GTrId)
     request = request + ':'
+
+    GTrId+=1
+    if GTrId == 8:
+        GTrId=0
 
     if(args!=None):
 	if(len(args)>0):
@@ -106,7 +123,7 @@ close to communication.
 These functions relate either to the client side or to the server side.
 """
 
-def COM_OpenConnection(ePort, eRate, nRetries=5):
+def COM_OpenConnection(ePort, eRate, nRetries=10):
 
     global ser
     try :
@@ -129,8 +146,9 @@ def COM_OpenConnection(ePort, eRate, nRetries=5):
         # 0 = everything ok
         return [not ser.isOpen(),ser,0]
 
-    except :
-        print "Connection Error - Leica TS not connected?"
+    except Exception as e:
+        print "Connection Error - Leica TS not connected?\n"
+        print str(e)
         return [1,0,[]]
 
 
@@ -417,6 +435,8 @@ def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle
     error = 1
     if(response.RC==0) :
         error = 0
+        if len(response.parameters) < 3 :
+            return [1, 1, []]
         coord = [response.parameters[0],response.parameters[1],response.parameters[2]]
         if(Debug_Level==1) :
             print 'Coordinates read successfully: ', coord
