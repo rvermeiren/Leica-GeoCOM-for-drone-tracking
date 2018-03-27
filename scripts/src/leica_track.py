@@ -13,6 +13,9 @@ from operator import neg
 
 
 reload(sys)
+sys.setdefaultencoding('utf8')
+OLD_COORD=[0,0,0]
+DEBUG=False
 
 
 def searchPrism(Hz, V):
@@ -113,11 +116,15 @@ def setup_station_manual(options):
 
 def setup_station(options):
     set_laser(1)
-    time.sleep(10)
+    time.sleep(5)
     set_x_axis()
     set_prism_type(options.big_prism)
     set_laser(0)
     searchPrism(40,20)
+    time.sleep(1)
+
+    GeoCom.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
+    GeoCom.TMC_DoMeasure()
     time.sleep(1)
 
 
