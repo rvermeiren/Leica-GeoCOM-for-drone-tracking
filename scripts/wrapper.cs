@@ -55,6 +55,7 @@ namespace Wrapper
             {
                 // Receive coord
                 string rcv = (test.get_measure()).Replace('.',',');
+                Console.WriteLine(rcv);
                 String [] sxyz = rcv.Split(';');
                 Coord c= new Coord();    // Parser coord
                 c.status = int.Parse(sxyz[0]);
@@ -63,9 +64,9 @@ namespace Wrapper
                     c.x = double.Parse(sxyz[1]);
                     c.y = double.Parse(sxyz[2]);
                     c.z = double.Parse(sxyz[3]);
-                }
 
-                ReceiveCoord?.Invoke(this, c);
+                    ReceiveCoord?.Invoke(this, c);
+                }  
             }
             test.close();
         }

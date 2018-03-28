@@ -184,7 +184,6 @@ def open():
     options = usage()
     connection(options)
     setup_station(options)
-    print "cool"
     return 1
     # except as e:
     #     return e
