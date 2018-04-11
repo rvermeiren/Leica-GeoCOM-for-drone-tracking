@@ -5,7 +5,7 @@ import serial
 import time
 
 ser = 0
-Debug_Level = 0;
+Debug_Level = 1;
 GTrId = 0;
 
 class ResponseClass:

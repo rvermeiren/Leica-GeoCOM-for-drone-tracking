@@ -38,11 +38,13 @@ def searchPrism(Hz, V):
         return True
     else :
         print("Locked fail")
+        GeoCom.COM_CloseConnection()
+        sys.exit("Can not lock prism... exiting")
         print(str(RC))
         print(str(error))
         return False
 
-def usage():
+def usage(COM ="COM3", baud = 57600):
     """
     Define and show usage of the script
         OUT optionsList : contains list of value set for option or default value
@@ -50,7 +52,7 @@ def usage():
     global DEBUG
     usage = "usage: C\:Python27\python.exe %prog [options]"
     parser = OptionParser(usage=usage)
-    parser.set_defaults(port="COM4",baudrate=57600, debug=False, big_prism=False)
+    parser.set_defaults(port=COM,baudrate=baud, debug=False, big_prism=False)
     parser.add_option("-p", "--port", action="store", type="string", dest="port", help="specify used port [default: %default]")
     parser.add_option("-b", "--baudrate", action="store", type="int", dest="baudrate", help="specify used baudrate [default: %default]")
     parser.add_option("-d", "--debug", action="store_true", dest="debug", help="print debug information")
@@ -67,8 +69,6 @@ def connection(options):
     """
     if GeoCom.COM_OpenConnection(options.port, options.baudrate )[0]:
         sys.exit("Can not open Port... exiting")
-
-    #time.sleep(30)
 
 def set_x_axis():
     """
@@ -117,7 +117,7 @@ def setup_station_manual(options):
 def setup_station(options):
     set_laser(1)
     time.sleep(5)
-    set_x_axis()
+    # set_x_axis()
     set_prism_type(options.big_prism)
     set_laser(0)
     searchPrism(40,20)
@@ -158,6 +158,7 @@ def get_measure():
         # if options.debug: print( 'Error: '+ str(error) )
         # if options.debug: print( 'Return Code: '+ str(RC) )
         if RC==0:
+            os.system('color 6')
             OLD_COORD = coord
             res = compute_carthesian(-float(coord[0]),float(coord[1]),float(coord[2]))
             # print(res)
@@ -170,6 +171,7 @@ def get_measure():
         # elif RC==1285:
         #     print('No valid distance measurement! \n')
         else:
+            os.system('color 0')
             print('\n'+'ERROR, Return code: '+str(RC)+'\n')
             return "1"
     except ValueError:
@@ -179,9 +181,9 @@ def get_measure():
         return "3"
         # print(e)
 
-def open():
+def open(port = "COM3", baud = 57600):
     # try :
-    options = usage()
+    options = usage(port, baud)
     connection(options)
     setup_station(options)
     return 1
@@ -196,28 +198,19 @@ def close():
 """#############################################################################
 ################################### MAIN #######################################
 #############################################################################"""
-# options = usage()
-# options = usage()
-# connection(options)
-# setup_station(options)
 
-# open()
-#
-# try :
-#     while True: #while program not interrupted by the user
-#         #t_start = time.time()
-#         print get_measure()
-#         #t_end = time.time()
-#         #print(t_end-t_start)
-# except KeyboardInterrupt :
-#     time.sleep(2)
-#     i=GeoCom.COM_SwitchOffTPS()
-#
-#     j=GeoCom.COM_CloseConnection()
-#
-#
-#
-#     sys.exit("Keyboard Interruption by user")
-#
-# # Closing serial connection, when execution is stopped
-# GeoCom.COM_CloseConnection()
+open()
+
+try :
+    while True: #while program not interrupted by the user
+        t_start = time.time()
+        print get_measure()
+        t_end = time.time()
+        print(t_end-t_start)
+except KeyboardInterrupt :
+    time.sleep(2)
+    j=GeoCom.COM_CloseConnection()
+    sys.exit("Keyboard Interruption by user")
+
+# Closing serial connection, when execution is stopped
+GeoCom.COM_CloseConnection()

@@ -27,7 +27,7 @@ namespace Wrapper
         Thread thread;
         bool isContinue;
         ScriptRuntime ipy;
-        dynamic test;
+        dynamic script;
 
         public Wrapper()
         {}
@@ -35,8 +35,8 @@ namespace Wrapper
         public void Open()
         {
             ipy = Python.CreateRuntime();
-            test = ipy.UseFile("src/leica_track.py");
-            test.open();
+            script = ipy.UseFile("src/alx_track.py");
+            script.open();
 
             isContinue = true;
             thread = new Thread(Run);
@@ -54,7 +54,7 @@ namespace Wrapper
             while(isContinue)
             {
                 // Receive coord
-                string rcv = (test.get_measure()).Replace('.',',');
+                string rcv = (script.get_measure()).Replace('.',',');
                 Console.WriteLine(rcv);
                 String [] sxyz = rcv.Split(';');
                 Coord c= new Coord();    // Parser coord
@@ -66,26 +66,26 @@ namespace Wrapper
                     c.z = double.Parse(sxyz[3]);
 
                     ReceiveCoord?.Invoke(this, c);
-                }  
+                }
             }
-            test.close();
+            script.close();
         }
 
-        // static void eReceiveCoord(object sender, Coord c)
-        // {
-        //     Console.WriteLine(c.toString());
-        // }
-        //
-        // static void Main()
-        // {
-        //     Wrapper w = new Wrapper();
-        //     w.Open();
-        //     w.ReceiveCoord += eReceiveCoord;
-        //     while(true)
-        //     {
-        //         System.Threading.Thread.Sleep(100);
-        //     }
-        //     w.Close();
-        // }
+        static void eReceiveCoord(object sender, Coord c)
+        {
+            Console.WriteLine(c.toString());
+        }
+
+        static void Main()
+        {
+            Wrapper w = new Wrapper();
+            w.Open();
+            w.ReceiveCoord += eReceiveCoord;
+            while(true)
+            {
+                System.Threading.Thread.Sleep(100);
+            }
+            w.Close();
+        }
     }
 }

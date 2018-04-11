@@ -7,6 +7,7 @@ import GeoCom
 from math import sin,cos
 from optparse import OptionParser
 from operator import neg
+import os
 
 
 reload(sys)
@@ -66,8 +67,6 @@ def connection(options):
     if GeoCom.COM_OpenConnection(options.port, options.baudrate )[0]:
         sys.exit("Can not open Port... exiting")
 
-    #time.sleep(30)
-
 def set_x_axis():
     """
     Set the orientation of the carthesian plan by fixing x axis
@@ -119,13 +118,13 @@ def compute_carthesian(phi,theta,radius):
         IN double theta : vertical angles
         IN double radius : distance
     """
-    phi = -phi #TODO check why this is necessary
+    phi = -phi
     point_x = round(sin(theta) * cos(phi) * radius,4)
     point_y = round(sin(theta) * sin(phi) * radius,4)
     point_z = round(cos(theta) * radius,4)
 
     #print the coordinates
-    #print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
+    # print ('x('+str(point_x)+') y('+str(point_y)+') z('+str(point_z)+')')
 
     #write point in file
     with open("msg.txt", "a") as file:
@@ -137,17 +136,20 @@ def get_measure(options):
     """
     global OLD_COORD
     try:
-        [error, RC, coord] = GeoCom.TMC_GetSimpleMea(1, 1)
+        [error, RC, coord] = GeoCom.TMC_GetSimpleMea(150, 1)
         if options.debug: print( 'Error: '+ str(error) )
         if options.debug: print( 'Return Code: '+ str(RC) )
         if RC==0:
+            os.system('color 6')
             compute_carthesian(-float(coord[0]),float(coord[1]),float(coord[2]))
             OLD_COORD = coord
         elif RC==1284:
+            os.system('color 5')
             print('Accuracy could not be guaranteed \n')
             coord = OLD_COORD
             compute_carthesian(float(coord[0]),float(coord[1]),float(coord[2]))
         elif RC==1285:
+            os.system('color 0')
             print('No valid distance measurement! \n')
         else:
             print('\n'+'ERROR, Return code: '+str(RC)+'\n')
@@ -171,7 +173,7 @@ try :
         print(t_end-t_start)
 except KeyboardInterrupt :
     time.sleep(2)
-    i=GeoCom.COM_SwitchOffTPS()
+    # i=GeoCom.COM_SwitchOffTPS()
 
     j=GeoCom.COM_CloseConnection()
 
