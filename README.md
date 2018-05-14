@@ -24,7 +24,7 @@ Based on the work of [Maxim Artyom](https://github.com/art-mx/leica_ros_sph) and
 ### Requirements
 * Windows 10
 * Leica cable GEV267 for Total station TCRP1203
-* Leica cable GEV267 for Total station MS50, MS60
+* Leica cable GEV269 for Total station MS50, MS60
 * Total station with GeoCom support (TCRP1203, MS50, MS60)
 * [Python2.7](https://www.python.org/download/releases/2.7/)
 * pip package manager for Python 2.7 (normally already include in Python installation)
@@ -42,7 +42,7 @@ Based on the work of [Maxim Artyom](https://github.com/art-mx/leica_ros_sph) and
         * Click on next to finish the installation
     * After this process, it's possible you need to redo this with the new device showed in the list call "Serial USB Converter"
 
-### Get the sources codes
+### Get the source codes
 
 You can download the code on this repository:
 https://github.com/rvermeiren/Leica-GeoCOM-for-drone-tracking
