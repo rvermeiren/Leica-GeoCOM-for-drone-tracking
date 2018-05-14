@@ -1,1 +1,1 @@
-C:\Python27\python.exe src/alx_track.py -p "COM6"
+C:\Python27\python.exe src/alx_track.py

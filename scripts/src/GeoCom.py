@@ -5,7 +5,7 @@ import serial
 import time
 
 ser = 0
-Debug_Level = 1;
+Debug_Level = 0;
 GTrId = 0;
 
 class ResponseClass:
@@ -440,6 +440,11 @@ def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle
         coord = [response.parameters[0],response.parameters[1],response.parameters[2]]
         if(Debug_Level==1) :
             print 'Coordinates read successfully: ', coord
+    if(response.RC==1284) :
+        error = 1284
+        coord = [response.parameters[0],response.parameters[1],response.parameters[2]]
+        if(Debug_Level==1) :
+            print 'Accuracy coulrd not be verified: ', coord
     if(response.RC==1285) :
         error = 1285
         coord = [response.parameters[0],response.parameters[1]]

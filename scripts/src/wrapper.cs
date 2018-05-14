@@ -32,11 +32,11 @@ namespace Wrapper
         public Wrapper()
         {}
 
-        public void Open()
+        public void Open(string port, string baudrate)
         {
             ipy = Python.CreateRuntime();
             script = ipy.UseFile("src/alx_track.py");
-            script.open();
+            script.open(port, baudrate);
 
             isContinue = true;
             thread = new Thread(Run);
@@ -59,7 +59,7 @@ namespace Wrapper
                 String [] sxyz = rcv.Split(';');
                 Coord c= new Coord();    // Parser coord
                 c.status = int.Parse(sxyz[0]);
-                if (c.status == 0)
+                if (c.status == 0 || c.status == 1)
                 {
                     c.x = double.Parse(sxyz[1]);
                     c.y = double.Parse(sxyz[2]);
@@ -76,16 +76,16 @@ namespace Wrapper
             Console.WriteLine(c.toString());
         }
 
-        static void Main()
-        {
-            Wrapper w = new Wrapper();
-            w.Open();
-            w.ReceiveCoord += eReceiveCoord;
-            while(true)
-            {
-                System.Threading.Thread.Sleep(100);
-            }
-            w.Close();
-        }
+        // static void Main()
+        // {
+        //     Wrapper w = new Wrapper();
+        //     w.Open();
+        //     w.ReceiveCoord += eReceiveCoord;
+        //     while(true)
+        //     {
+        //         System.Threading.Thread.Sleep(100);
+        //     }
+        //     w.Close();
+        // }
     }
 }
