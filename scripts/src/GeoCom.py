@@ -1,3 +1,7 @@
+"""
+.. module:: GeoCom
+
+"""
 import sys
 sys.path.append(r"C:\Python27\Lib")
 sys.path.append(r"C:\Python27\Lib\site-packages")
@@ -123,7 +127,30 @@ close to communication.
 These functions relate either to the client side or to the server side.
 """
 
+"""
+.. module :: GeoCom.com 
+"""
+
 def COM_OpenConnection(ePort, eRate, nRetries=10):
+    """ 
+    [GeoCOM manual **p26**]
+
+    Open a PC serial port and attempts to detect a theodolite based on the given baud rate.
+
+    :param ePort: serial port
+    :type ePort: str
+    :param eRate: baud rate
+    :type eRate: int
+    :param nRetries: number of retries to initiate a connection
+    :type nRetries: int
+    
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the connection attempt was successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     global ser
     try :
@@ -153,6 +180,14 @@ def COM_OpenConnection(ePort, eRate, nRetries=10):
 
 
 def COM_CloseConnection():
+    """ 
+    [GeoCOM manual **p27**]
+
+    Close the (current) open port and releases an established connection.
+
+    :returns: [error, RC, []]. error=0 and RC=0 if the request is successful.
+    :rtype: list
+    """
 
     global ser
     ser.close()
@@ -165,6 +200,7 @@ def COM_CloseConnection():
 
 
 def COM_SwitchOnTPS(eOnMode=2) :
+    """ [GeoCOM manual **p96**] """
 
     request = CreateRequest('111',[eOnMode])
 
@@ -189,6 +225,7 @@ def COM_SwitchOnTPS(eOnMode=2) :
 
 
 def COM_SwitchOffTPS(eOffMode=0) :
+    """ [GeoCOM manual **p97**] """
 
     request = CreateRequest('112',[eOffMode])
 
@@ -215,6 +252,9 @@ information about the TPS1200 instrument.
 """
 
 def CSV_GetDateTime():
+    """ 
+    [GeoCOM manual **p107**]
+    """
     DateTime = []
 
     response = SerialRequest('%R1Q,5008:')
@@ -236,7 +276,7 @@ def CSV_GetDateTime():
 
 
 """#############################################################################
-########################## AUT - AUTOMATISATION ################################
+########################## AUT - AUTOMATION ################################
 ################################################################################
 Automatisation; a module which provides functions like the control of the
 Automatic Target Recognition, Change Face function or Positioning functions.
@@ -254,7 +294,10 @@ AUT_TARGET = 1 // Positioning to a target in the
 // environment of the hz- and v-angle.
 '''
 
-def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0): #GeoCom manual p41
+def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0):
+    """ 
+    [GeoCOM manual **p49**]
+    """
 
     request = CreateRequest('9027',[Hz,V,POSMode, ATRMode, bDummy])
 
@@ -270,6 +313,25 @@ def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0): #GeoCom manual p
     return [error, response.RC, []]
 
 def AUT_Search(Hz_Area, V_Area, bDummy = 0):
+    """
+    [GeoCOM manual **p56**]
+
+    Performs an automatic target search within a given area.
+
+    :parem Hz: horizontal search region [rad]
+    :type Hz: int
+    :param V: vertical search region [rad]
+    :type V: int
+    :param bDummy: reserved for future use, always set to false (quick reminder: *0* in GeoCOM is considered false)
+    :type bDummy: int
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the search is successful
+    * error=1 and RC=8710 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('9029',[Hz_Area, V_Area, bDummy])
 
@@ -291,6 +353,23 @@ def AUT_Search(Hz_Area, V_Area, bDummy = 0):
 # Does not work - connection time out...
 # seems to be not needed, when the Leica is directed to the prism
 def AUT_FineAdjust(dSrchHz=0.1, dSrchV=0.1):
+    """ 
+    [GeoCOM manual **p54**] 
+
+    Precisely positions the telescope crosshairs onto the target prism.
+
+    :param dSrchHz: Search range Hz-axis [rad]
+    :type dSrchHz: float
+    :param dSrchV: Search range V-axis [rad]
+    :type dSrchV: float
+    
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 otherwise
+
+    :rtype: list
+    """
 
     request = CreateRequest('9037',[dSrchHz, dSrchV, 0])
 
@@ -304,6 +383,20 @@ def AUT_FineAdjust(dSrchHz=0.1, dSrchV=0.1):
 
 
 def AUT_LockIn() :
+    """
+    [GeoCOM manual **p60**]
+
+    If LOCK mode is activated (AUS_SetUserLockState), then the function starts the target tracking.
+    The command is only possible if a AUT_FineAdjust command has been previously sent and
+    successfully executed.
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the lock is successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('9013',[])
 
@@ -319,12 +412,27 @@ def AUT_LockIn() :
     return [error, response.RC, []]
 
 """#############################################################################
-#################### EDM - Electronic Distance Meter ###########################
+#################### EDM - Electronic Distance Measurement #####################
 ################################################################################
 Electronic Distance Meter; the module, which measures distances.
 
 """
 def EDM_Laserpointer(eOn = 0):
+    """
+    [GeoCOM manual **p114**]
+
+    Turns on/off the laser pointer of the total station.
+
+    :param eOn: On (*1*) or Off (*0*)
+    :type eOn: int
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('1004',[eOn])
 
@@ -346,6 +454,19 @@ Theodolite Measurement and Calculation; the core module for getting measurement
 data.
 """
 def TMC_SetOrientation():
+    """ 
+    [GeoCOM manual **p148**]
+
+    Orientate the instrument in Hz direction. It is a combination of an angle measurement to
+    get the Hz offset and afterwards setting the angle Hz offset in order to orientate onto a target.
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('2113',[0])
 
@@ -358,6 +479,24 @@ def TMC_SetOrientation():
     return [error, response.RC, []]
 
 def TMC_DoMeasure(cmd=1, mode=1) : #TMC Measurement Modes in geocom manual p.91
+    """ 
+    [GeoCOM manual **p141**]
+
+    Carries out a distance measurement. Please note that this command does not output any values (distances).
+    In order to get the values you have to use other measurement functions such as TMC_GetCoordinate , TMC_GetSimpleMea or TMC_GetAngle .
+
+    :param cmd: TMC measurement mode (see **p127** of GeoCOM ref manual)
+    :type cmd: int
+    :param mode: Inclination sensor measurement mode
+    :type mode: int
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('2008',[cmd,mode])
 
@@ -374,6 +513,41 @@ def TMC_DoMeasure(cmd=1, mode=1) : #TMC Measurement Modes in geocom manual p.91
 
 
 def TMC_SetEdmMode(mode=6) :
+    """ 
+    [GeoCOM manual **p167**]
+
+    Set the current measurement mode.
+
+    :param mode: measurement mode
+    :type mode: int
+
+    Measurement modes available (check **p127**-**128** for further information) : 
+
+    Format : *<int value>*. *<enum constant name>* : *<description>*
+
+    0. EDM_MODE_NOT_USED : Init value
+    1. EDM_SINGLE_TAPE : IR Standard Reflector Tape
+    2. EDM_SINGLE_STANDARD : IR Standard
+    3. EDM_SINGLE_FAST : IR Fast
+    4. EDM_SINGLE_LRANGE : LO Standard
+    5. EDM_SINGLE_SRANGE : RL Standard
+    6. EDM_CONT_STANDARD : Standard repeated measurement
+    7. EDM_CONT_DYNAMIC : IR Tacking
+    8. EDM_CONT_REFLESS : RL Tracking
+    9. EDM_CONT_FAST : Fast repeated measurement
+    10. EDM_AVERAGE_IR : IR Average
+    11. EDM_AVERAGE_SR : RL Average
+    12. EDM_AVERAGE_LR : LO Average
+    13. EDM_PRECISE_IR : IR Precise (TS30, TM30)
+    14. EDM_PRECISE_TAPE : IR Precise Reflector Tape (TS30, TM30)
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('2020',[mode])
 
@@ -389,6 +563,8 @@ def TMC_SetEdmMode(mode=6) :
 
 
 def TMC_GetCoordinate(WaitTime=100,mode=1) :
+    """ [GeoCOM manual **p130**] """
+
     coord = []
 
     request = CreateRequest('2082',[WaitTime,mode])
@@ -408,6 +584,8 @@ def TMC_GetCoordinate(WaitTime=100,mode=1) :
     return [error, response.RC, coord]
 
 def TMC_GetStation(WaitTime=100):
+    """ [GeoCOM manual **p155**] """
+
     coord = []
 
     request = CreateRequest('2009',[WaitTime])
@@ -427,6 +605,30 @@ def TMC_GetStation(WaitTime=100):
     return [error, response.RC, []]
 
 def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle and distance measurement - geocom manual p.95
+    """ 
+    [GeoCOM manual **p132**]
+
+    Returns the angles and distance measurement data. This command does not issue a new distance measurement.
+    A distance measurement has to be started in advance (call TMC_DoMeasure before this function).
+    If no valid distance measurement is available and the distance measurement unit is not activated 
+    (by TMC_DoMeasure before the TMC_GetSimpleMea call) the angle measurement result is returned 
+    after the **WaitTime**.
+
+    :param WaitTime: Delay to wait for the distance measurement to finish [ms]
+    :type WaitTime: int
+    :param mode: Inclination sensor measurement mode
+    :type mode: int
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 if not. In this case RC can be equal to:
+        * 1284 : Accuracy of the measurement could not be verified by the system of the total station
+        * 1285 : Only the angles of the station could be obtained (no distance measurement available)
+
+    :rtype: list
+    """
+
     coord = []
     request = CreateRequest('2108',[WaitTime,mode])
 
@@ -444,7 +646,7 @@ def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle
         error = 1284
         coord = [response.parameters[0],response.parameters[1],response.parameters[2]]
         if(Debug_Level==1) :
-            print 'Accuracy coulrd not be verified: ', coord
+            print 'Accuracy could not be verified: ', coord
     if(response.RC==1285) :
         error = 1285
         coord = [response.parameters[0],response.parameters[1]]
@@ -455,7 +657,9 @@ def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle
     return [error, response.RC, coord]
 
 
-def TMC_QuickDist() : #TMC_QuickDist - Returns slope-distance and hz-,v-angle - geocom manual p.100
+def TMC_QuickDist() :
+    """ [GeoCOM manual **p138**] """
+
     coord = []
     request = CreateRequest('2117')
     response = SerialRequest(request)
@@ -467,7 +671,8 @@ def TMC_QuickDist() : #TMC_QuickDist - Returns slope-distance and hz-,v-angle - 
     return [error, response.RC, coord]
 
 
-def TMC_GetAngle(mode = 1) : #geocom manual p.98 TMC_GetAngle5
+def TMC_GetAngle(mode = 1) :
+    """ Refer to *TMC_GetAngle5* in GeoCOM manual **p136** """
     coord = []
     request = CreateRequest('2107',[mode])
 
@@ -485,7 +690,8 @@ def TMC_GetAngle(mode = 1) : #geocom manual p.98 TMC_GetAngle5
 
 
 def TMC_GetEdmMode():
-#
+    """ """
+
 #    EDM_MODE = {0 : 'EDM_MODE_NOT_USED',
 #                1 : 'EDM_SINGLE_TAPE',
 #                2 : 'EDM_SINGLE_STANDARD',
@@ -514,18 +720,17 @@ def TMC_GetEdmMode():
 ##        EDM_AVERAGE_LR          12,// LO Average
 ##        EDM_PRECISE_IR          13,// IR Precise (TS30, TM30)
 ##        EDM_PRECISE_TAPE        14,// IR Precise Reflector Tape (TS30, TM30)
-#
-   request = CreateRequest('2021',[])
+    request = CreateRequest('2021',[])
 
-   response = SerialRequest(request)
+    response = SerialRequest(request)
 
-   error = 1
-   if(response.RC==0) :
-       error = 0
-       if(Debug_Level==1) :
-           print 'EDM Mode read successfully: '
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'EDM Mode read successfully: '
 
-   return [error, response.RC,response.parameters]
+    return [error, response.RC,response.parameters]
 
 #
 #def TMC_SetEdmMode(mode) :
@@ -582,7 +787,8 @@ MOT_TERM = 7 // terminates the controller task
 
 '''
 
-def MOT_StartController(ControlMode=1): #GeoCom manual p83
+def MOT_StartController(ControlMode=1):
+    """ [GeoCOM manual **p119**] """
     request = CreateRequest('6001',[ControlMode])
 
     response = SerialRequest(request)
@@ -603,6 +809,7 @@ MOT_SHUTDOWN = 1 // slow down by switch off power supply
 '''
 
 def MOT_StopController(Mode=0):
+    """ [GeoCOM manual **p120**] """
 
     request = CreateRequest('6000',[Mode])
 
@@ -619,7 +826,8 @@ def MOT_StopController(Mode=0):
 '''
 
 '''
-def MOT_SetVelocity(Hz_speed,v_speed) : #GeoCom manual p85
+def MOT_SetVelocity(Hz_speed,v_speed) :
+    """ [GeoCOM manual **p121**] """
 
     request = CreateRequest('6004',[Hz_speed,v_speed])
 
@@ -640,22 +848,12 @@ def MOT_SetVelocity(Hz_speed,v_speed) : #GeoCom manual p85
 Basic Applications; some functions, which can easily be used to get measuring
 data.
 """
-def BAP_SetPrismType(PrismType = 7):
-
-    request = CreateRequest('17008',[PrismType])
-
-    response = SerialRequest(request)
-
-    error = 1
-    if(response.RC==0) :
-        error = 0
-
-    return [error, response.RC, []]
 
 BAP_TARGET_TYPE = { 0 : 'BAP_REFL_USE', # with reflector
                     1 : 'BAP_REFL_LESS'} # without reflector
 
 def BAP_GetTargetType() :
+    """ [GeoCOM manual **p71**] """
     parameter = []
     request = CreateRequest('17022',[])
 
@@ -675,6 +873,7 @@ def BAP_GetTargetType() :
 
 
 def BAP_SetTargetType(eTargetType = 0) :
+    """ [GeoCOM manual **p72**] """
 
     request = CreateRequest('17021',[eTargetType])
 
@@ -709,6 +908,7 @@ BAP_PRISMTYPE = {0 : ['BAP_PRISM_ROUND', 'Leica Circular Prism'],
 
 
 def BAP_GetPrismType() :
+    """ [GeoCOM manual **p73**] """
     parameter = []
 
     request = CreateRequest('17009',[])
@@ -726,6 +926,26 @@ def BAP_GetPrismType() :
     return [error, response.RC, parameter]
 
 def BAP_SetPrismType(ePrismType) :
+    """ 
+    [GeoCOM manual **p74**]
+    
+    Sets the prism type for measurements with a reflector.
+    Check **p69** of GeoCOM manual for all prism types.
+    Prism types used with the main script:
+
+    * BAP_PRISM_360 (value=3) : Leica 360 Prism
+    * BAP_PRISM_360_MINI (value=7) : Leica Mini 360 Prism
+
+    :param PrismType: Constant associated to a prism type
+    :type PrismType: int
+
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+    """
 
     request = CreateRequest('17008',[ePrismType])
 
@@ -740,6 +960,7 @@ def BAP_SetPrismType(ePrismType) :
     return [error, response.RC, []]
 
 def BAP_SetMeasPrg(eMeasPrg) :
+    """ [GeoCOM manual **p81**] """
 
     request = CreateRequest('17019',[eMeasPrg])
 
@@ -768,7 +989,8 @@ BAP_USER_MEASPRG = {0 : ['BAP_SINGLE_REF_STANDARD','Reflector, Standard'],
                     10 :['BAP_CONT_REF_SYNCHRO', 'Reflector, Synchro Tracking'],
                     11 :['BAP_SINGLE_REF_PRECISE','not available']}
 
-def BAP_MeasDistanceAngle(mode = 6): #GeoCom manual p62
+def BAP_MeasDistanceAngle(mode = 6):
+    """ [GeoCOM manual **p82**] """
     coord = []
 
     request = CreateRequest('17017',[mode])
@@ -787,6 +1009,7 @@ def BAP_MeasDistanceAngle(mode = 6): #GeoCom manual p62
     return [error, response.RC, coord]
 
 def BAP_GetMeasPrg() :
+    """ [GeoCOM manual **p80**] """
 
     parameter = []
 
@@ -807,6 +1030,7 @@ def BAP_GetMeasPrg() :
 
 
 def BAP_SearchTarget(bDummy = 0) :
+    """ [GeoCOM manual **p84**] """
 
     request = CreateRequest('17020',[bDummy])
 
@@ -837,6 +1061,7 @@ The subsystem "Alt User" mainly contains functions behind the "SHIFT" + "USER"
 button.
 """
 def AUS_SetUserLockState(on = 0):
+    """ [GeoCOM manual **p42**] """
 
     request = CreateRequest('18007',[on])
 
@@ -852,6 +1077,7 @@ def AUS_SetUserLockState(on = 0):
     return [error, response.RC, []]
 
 def AUS_SetUserAtrState(on = 0):
+    """ [GeoCOM manual **p40**] """
 
     request = CreateRequest('18005',[on])
 
@@ -867,6 +1093,7 @@ def AUS_SetUserAtrState(on = 0):
     return [error, response.RC, []]
 
 def AUS_GetUserLockState():
+    """ [GeoCOM manual **p41**] """
 
     request = CreateRequest('18008')
 
@@ -882,6 +1109,7 @@ def AUS_GetUserLockState():
     return [error, response.RC, response.parameters]
 
 def AUS_GetUserAtrState():
+    """ [GeoCOM manual **p39**] """
 
     request = CreateRequest('18006')
 
