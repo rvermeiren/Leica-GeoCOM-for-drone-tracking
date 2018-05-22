@@ -24,7 +24,7 @@ Based on the work of [Maxim Artyom](https://github.com/art-mx/leica_ros_sph) and
 
 The documentation generation is automated using [Sphinx](http://www.sphinx-doc.org/en/master/).
 The scripts generating the documentation for ```alx_track.py``` and ```GeoCom.py``` are available in the folder ```scripts\source```.  
-To generate it on a Windows system : check ```scripts\make.bat```.  
+To generate it on a Windows system : see ```scripts\make.bat```.  
 To generate it on a Unix system:
 
 * Open a terminal
