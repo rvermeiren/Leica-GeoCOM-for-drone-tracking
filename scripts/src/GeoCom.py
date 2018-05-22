@@ -128,11 +128,11 @@ These functions relate either to the client side or to the server side.
 """
 
 """
-.. module :: GeoCom.com 
+.. module :: GeoCom.com
 """
 
 def COM_OpenConnection(ePort, eRate, nRetries=10):
-    """ 
+    """
     [GeoCOM manual **p26**]
 
     Open a PC serial port and attempts to detect a theodolite based on the given baud rate.
@@ -143,7 +143,7 @@ def COM_OpenConnection(ePort, eRate, nRetries=10):
     :type eRate: int
     :param nRetries: number of retries to initiate a connection
     :type nRetries: int
-    
+
     :returns: [error, RC, []]
 
     * error=0 and RC=0 if the connection attempt was successful
@@ -180,7 +180,7 @@ def COM_OpenConnection(ePort, eRate, nRetries=10):
 
 
 def COM_CloseConnection():
-    """ 
+    """
     [GeoCOM manual **p27**]
 
     Close the (current) open port and releases an established connection.
@@ -252,7 +252,7 @@ information about the TPS1200 instrument.
 """
 
 def CSV_GetDateTime():
-    """ 
+    """
     [GeoCOM manual **p107**]
     """
     DateTime = []
@@ -295,7 +295,7 @@ AUT_TARGET = 1 // Positioning to a target in the
 '''
 
 def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0):
-    """ 
+    """
     [GeoCOM manual **p49**]
     """
 
@@ -311,6 +311,10 @@ def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0):
 
 
     return [error, response.RC, []]
+
+# powersearch
+# TODO
+
 
 def AUT_Search(Hz_Area, V_Area, bDummy = 0):
     """
@@ -353,8 +357,8 @@ def AUT_Search(Hz_Area, V_Area, bDummy = 0):
 # Does not work - connection time out...
 # seems to be not needed, when the Leica is directed to the prism
 def AUT_FineAdjust(dSrchHz=0.1, dSrchV=0.1):
-    """ 
-    [GeoCOM manual **p54**] 
+    """
+    [GeoCOM manual **p54**]
 
     Precisely positions the telescope crosshairs onto the target prism.
 
@@ -362,7 +366,7 @@ def AUT_FineAdjust(dSrchHz=0.1, dSrchV=0.1):
     :type dSrchHz: float
     :param dSrchV: Search range V-axis [rad]
     :type dSrchV: float
-    
+
     :returns: [error, RC, []]
 
     * error=0 and RC=0 if the request is successful
@@ -454,7 +458,7 @@ Theodolite Measurement and Calculation; the core module for getting measurement
 data.
 """
 def TMC_SetOrientation():
-    """ 
+    """
     [GeoCOM manual **p148**]
 
     Orientate the instrument in Hz direction. It is a combination of an angle measurement to
@@ -479,7 +483,7 @@ def TMC_SetOrientation():
     return [error, response.RC, []]
 
 def TMC_DoMeasure(cmd=1, mode=1) : #TMC Measurement Modes in geocom manual p.91
-    """ 
+    """
     [GeoCOM manual **p141**]
 
     Carries out a distance measurement. Please note that this command does not output any values (distances).
@@ -513,7 +517,7 @@ def TMC_DoMeasure(cmd=1, mode=1) : #TMC Measurement Modes in geocom manual p.91
 
 
 def TMC_SetEdmMode(mode=6) :
-    """ 
+    """
     [GeoCOM manual **p167**]
 
     Set the current measurement mode.
@@ -521,7 +525,7 @@ def TMC_SetEdmMode(mode=6) :
     :param mode: measurement mode
     :type mode: int
 
-    Measurement modes available (check **p127**-**128** for further information) : 
+    Measurement modes available (check **p127**-**128** for further information) :
 
     Format : *<int value>*. *<enum constant name>* : *<description>*
 
@@ -605,13 +609,13 @@ def TMC_GetStation(WaitTime=100):
     return [error, response.RC, []]
 
 def TMC_GetSimpleMea(WaitTime=100, mode = 1) : #TMC_GetSimpleMea - Returns angle and distance measurement - geocom manual p.95
-    """ 
+    """
     [GeoCOM manual **p132**]
 
     Returns the angles and distance measurement data. This command does not issue a new distance measurement.
     A distance measurement has to be started in advance (call TMC_DoMeasure before this function).
-    If no valid distance measurement is available and the distance measurement unit is not activated 
-    (by TMC_DoMeasure before the TMC_GetSimpleMea call) the angle measurement result is returned 
+    If no valid distance measurement is available and the distance measurement unit is not activated
+    (by TMC_DoMeasure before the TMC_GetSimpleMea call) the angle measurement result is returned
     after the **WaitTime**.
 
     :param WaitTime: Delay to wait for the distance measurement to finish [ms]
@@ -926,9 +930,9 @@ def BAP_GetPrismType() :
     return [error, response.RC, parameter]
 
 def BAP_SetPrismType(ePrismType) :
-    """ 
+    """
     [GeoCOM manual **p74**]
-    
+
     Sets the prism type for measurements with a reflector.
     Check **p69** of GeoCOM manual for all prism types.
     Prism types used with the main script:
