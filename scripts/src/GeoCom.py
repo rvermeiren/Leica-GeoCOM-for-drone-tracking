@@ -475,7 +475,8 @@ def AUT_PS_EnableRange(bEnable):
     :rtype: list
 	"""
 
-	response = SerialRequest('%R1Q,9048:')
+	request = CreateRequest('9048', [bEnable])
+	response = SerialRequest(request)
 
 	error = 1
 	if(response.RC==0) :
@@ -497,6 +498,14 @@ def AUT_PS_SetRange(lMinDist, lMaxDist):
 
     :rtype: list
 	"""
+	request = CreateRequest('9047', [lMinDist, lMaxDist])
+	response = SerialRequest(request)
+
+	error = 1
+	if(response.RC==0) :
+		error = 0
+
+	return [error, response.RC, []]
 
 
 def AUT_PS_SearchWindow():
@@ -510,10 +519,18 @@ def AUT_PS_SearchWindow():
 	
 	* error=0 and RC=0 if the request is successful
     * error=1 if not
+    	* RC = 8720 if the working area is not defined
+    	* RC = 8710 if not target was found
 
     :rtype: list
 	"""
+	response = SerialRequest('%R1Q,9052:')
 
+	error = 1
+	if(response.RC==0) :
+		error = 0
+
+	return [error, response.RC, []]
 
 
 """#############################################################################
