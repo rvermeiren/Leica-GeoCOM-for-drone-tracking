@@ -415,6 +415,128 @@ def AUT_LockIn() :
 
     return [error, response.RC, []]
 
+
+def AUT_GetSearchArea():
+	"""
+	[GeoCom **p61**]
+	
+	Returns the current position and size of the PowerSearch Window.
+
+	:returns: [error, RC, parameters]
+
+	* error=0 and RC=0 if the request is successful
+    * error=1 if not
+    * parameters contains the position and size of the PowerSearch Window
+
+    :rtype: list
+	"""
+	response = SerialRequest('%R1Q,9042:')
+	
+	error = 1
+	if(response.RC==0) :
+		error = 0
+		if(Debug_Level==1) :
+			print 'Parameters: ', response.parameters
+
+	return [error, response.RC, response.parameters]
+
+
+def AUT_SetSearchArea(dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled):
+	"""
+	[GeoCom **p62**]
+	
+	Define the position and dimensions and activates the PowerSearch window.
+
+	:returns: [error, RC, parameters]
+
+	* error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+	"""
+	request = CreateRequest('9043', [dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled])
+	response = SerialRequest(request)
+	
+	error = 1
+	if(response.RC==0) :
+		error = 0
+
+	return [error, response.RC, []]
+
+
+def AUT_PS_EnableRange(bEnable):
+	"""
+	[GeoCom **p65**]
+
+	Enables (bEnable=1) / disables (bEnable=0) the predefined PowerSearch window, 
+	including the predefined PowerSearch range limits, set by AUT_PS_SetRange.
+
+	:returns: [error, RC, []]
+	
+	* error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+	"""
+
+	request = CreateRequest('9048', [bEnable])
+	response = SerialRequest(request)
+
+	error = 1
+	if(response.RC==0) :
+		error = 0
+
+	return [error, response.RC, []]
+
+
+def AUT_PS_SetRange(lMinDist, lMaxDist):
+	"""
+	[GeoCom **p66**]
+
+	Define the PowerSearch range limits.
+
+	:returns: [error, RC, []]
+	
+	* error=0 and RC=0 if the request is successful
+    * error=1 if not
+
+    :rtype: list
+	"""
+	request = CreateRequest('9047', [lMinDist, lMaxDist])
+	response = SerialRequest(request)
+
+	error = 1
+	if(response.RC==0) :
+		error = 0
+
+	return [error, response.RC, []]
+
+
+def AUT_PS_SearchWindow():
+	"""
+	[GeoCom **p67**]
+
+	Start PowerSearch inside the given PowerSearch window, 
+	defined by AUT_SetSearchArea and optional by AUT_PS_SetRange.
+
+	:returns: [error, RC, []]
+	
+	* error=0 and RC=0 if the request is successful
+    * error=1 if not
+    	* RC = 8720 if the working area is not defined
+    	* RC = 8710 if not target was found
+
+    :rtype: list
+	"""
+	response = SerialRequest('%R1Q,9052:')
+
+	error = 1
+	if(response.RC==0) :
+		error = 0
+
+	return [error, response.RC, []]
+
+
 """#############################################################################
 #################### EDM - Electronic Distance Measurement #####################
 ################################################################################
