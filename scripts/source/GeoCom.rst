@@ -13,7 +13,8 @@ Classes
 --------
 
 .. automodule:: GeoCom
-
+	:members: getTrId, HexToDec, SerialRequest, CreateRequest
+	
 	.. autoclass :: ResponseClass
 		:members:
 
