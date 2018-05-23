@@ -1,5 +1,5 @@
-GeoCOM functions
-**************************
+GeoCOM
+*******
 
 All functions specified here are specified as in the TPS1200 GeoCOM reference manual, **V1.20**.
 Not all of them are specified: the ones used in the main script are described in details, while the others simply redirect to the page of the reference manual where they are described.
@@ -9,6 +9,12 @@ Not all functions available in GeoCOM are implemented in this script.
 In the specification of some GeoCOM functions, not all RC codes possibly returned by the function are given and described.
 You can easily check them in the GeoCOM reference manual.
 
+Classes
+--------
+
+.. autoclass:: ResponseClass
+	:members:
+.. exception:: SerialRequestError
 
 COM -- Communication
 ---------------------
