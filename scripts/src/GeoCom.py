@@ -12,7 +12,7 @@ ser = 0
 Debug_Level = 0;
 GTrId = 0;
 
-""".. class:: ResponseClass""""
+""".. class:: ResponseClass"""
 class ResponseClass:
 
     RC_COM = 0
@@ -38,7 +38,7 @@ class ResponseClass:
             if(self.RC!=0 and Debug_Level==1) :
                 print 'Problem occurred, Error code: ', self.RC
 
-""".. exception:: SerialRequestError""""
+""".. exception:: SerialRequestError"""
 class SerialRequestError(Exception):
     def __init__(self, value):
         self.value = value
