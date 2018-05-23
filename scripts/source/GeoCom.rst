@@ -12,8 +12,11 @@ You can easily check them in the GeoCOM reference manual.
 Classes
 --------
 
-.. autoclass:: ResponseClass
-	:members:
+.. automodule:: GeoCom
+
+	.. autoclass :: ResponseClass
+		:members:
+
 .. exception:: SerialRequestError
 
 COM -- Communication
