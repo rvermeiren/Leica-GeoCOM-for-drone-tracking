@@ -13,8 +13,14 @@ Debug_Level = 0;
 GTrId = 0;
 
 class ResponseClass:
-    """ 
+    """
+    ResponseClass destinate to manage the response get from the station and the
+    error code return
 
+    :attribute RC_COM: Communication return code
+    :attribute TrId: Transaction id
+    :attribute RC: return code
+    :attribute parameters: List of returns parameters
     """
 
     RC_COM = 0
@@ -23,21 +29,21 @@ class ResponseClass:
     parameters = []
 
     def setResponse(self, response):
-        
+        """
+        Instanciate a ResponseClass from a ASCII response
+        :params response: ASCII response get from the station
+        """
         if(Debug_Level==2) :
             print 'response = ',response
         # remove the ' from the string, remove the end-line character and split it up
         words = response.replace('\'','').strip().split(',')
         # print words
-        if(len(words)>1) :
+        if(len(words)>1):
             self.RC_COM = int(words[1])
             words2 = words[2].split(':')
             self.TrId = int(words2[0])
             self.RC = int(words2[1])
-
             self.parameters = words[3:len(words)]
-
-
             if(self.RC!=0 and Debug_Level==1) :
                 print 'Problem occurred, Error code: ', self.RC
 
