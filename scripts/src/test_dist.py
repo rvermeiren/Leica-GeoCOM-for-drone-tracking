@@ -23,6 +23,30 @@ OLD_COORD=[0,0,0]
 FAIL_COUNT=0
 DEBUG=False
 
+def powerSearchPrism(cHz = 0, cV=1.57):
+    print("powerSearchPrism")
+    a = GeoCom.AUT_SetSearchArea(cHz, cV, 3.5 ,1.75,1)
+    b = GeoCom.AUT_PS_SetRange(5,100)
+    c = GeoCom.AUT_PS_EnableRange(1)
+    if GeoCom.AUT_PS_SearchWindow()[1] == 0:
+        [error, RC, parameters] = GeoCom.AUT_FineAdjust(math.radians(20),math.radians(20))
+        if RC != 0:
+            os.system('color 0F')
+            return False
+    else :
+        return False
+    print ("Prism found")
+    [error, RC, coord] = GeoCom.AUT_LockIn()
+    if RC == 0:
+        print("Prism locked")
+        return True
+    else :
+        print("Locked fail")
+        os.system('color 0F')
+        print(str(RC))
+        print(str(error))
+        print("Can not lock prism... retry")
+        return False
 
 def searchPrism(Hz = 20 , V=20):
     """
@@ -44,7 +68,8 @@ def searchPrism(Hz = 20 , V=20):
             #GeoCom.COM_CloseConnection()
             #sys.exit("Can not found prism... exiting")
             return False
-        # else :
+    else :
+        return False
     print ("Prism found")
     [error, RC, coord] = GeoCom.AUT_LockIn()
     if RC == 0:
@@ -146,8 +171,9 @@ def setup_station_manual(options):
     set_prism_type(options.big_prism)
     raw_input('Direct the station to the prism and press <enter>')
     set_laser(0)
-    while not searchPrism(40,20):
-        time.sleep(10)
+    while not powerSearchPrism():
+        print("search again")
+        time.sleep(2)
 
     GeoCom.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
     GeoCom.TMC_DoMeasure()
@@ -157,13 +183,13 @@ def setup_station_manual(options):
 def setup_station(options):
     print("Script starting ...")
     set_laser(1)
-    time.sleep(5)
+    time.sleep(3)
     set_x_axis()
     set_prism_type(options.big_prism)
     set_laser(0)
-    while not searchPrism(40,20):
+    while not powerSearchPrism():
         print("search again")
-        time.sleep(10)
+        time.sleep(2)
     time.sleep(1)
 
     GeoCom.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
@@ -212,9 +238,9 @@ def get_measure():
     """
     global OLD_COORD, FAIL_COUNT
     if FAIL_COUNT > 100:
-        while not searchPrism():
+        while not powerSearchPrism():
             print("search again")
-            time.sleep(10)
+            time.sleep(2)
         FAIL_COUNT = 0
     try:
         [error, RC, coord] = GeoCom.TMC_GetSimpleMea(150, 1)

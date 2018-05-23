@@ -12,7 +12,9 @@ ser = 0
 Debug_Level = 0;
 GTrId = 0;
 
+""".. class:: ResponseClass""""
 class ResponseClass:
+
     RC_COM = 0
     TrId = 0
     RC = 0
@@ -36,6 +38,7 @@ class ResponseClass:
             if(self.RC!=0 and Debug_Level==1) :
                 print 'Problem occurred, Error code: ', self.RC
 
+""".. exception:: SerialRequestError""""
 class SerialRequestError(Exception):
     def __init__(self, value):
         self.value = value
@@ -72,7 +75,7 @@ def SerialRequest(request, length = 0, t_timeout = 3): #default 3
             response.RC = 3077
             return response
 
-        time.sleep(0.025)	# Short break to make sure serial port is not read while stuff is written
+        time.sleep(0.025)    # Short break to make sure serial port is not read while stuff is written
 
         serial_output = ser.read(ser.inWaiting())
         response.setResponse(serial_output)
@@ -111,13 +114,13 @@ def CreateRequest(cmd, args=None):
         GTrId=0
 
     if(args!=None):
-	if(len(args)>0):
-		for i in range(0,len(args)-1) :
-		    request = request + str(args[i])
-		    request = request + ','
+        if(len(args)>0):
+            for i in range(0,len(args)) :
+                request = request + str(args[i])
+                request = request + ','
 
-        	request = request + str(args[-1])
-    return request
+            request = request + str(args[-1])
+        return request
 
 """#############################################################################
 ########################### COM - COMMUNICATION ################################
@@ -417,124 +420,126 @@ def AUT_LockIn() :
 
 
 def AUT_GetSearchArea():
-	"""
-	[GeoCom **p61**]
-	
-	Returns the current position and size of the PowerSearch Window.
+    """
+    [GeoCom **p61**]
 
-	:returns: [error, RC, parameters]
+    Returns the current position and size of the PowerSearch Window.
 
-	* error=0 and RC=0 if the request is successful
+    :returns: [error, RC, parameters]
+
+    * error=0 and RC=0 if the request is successful
     * error=1 if not
     * parameters contains the position and size of the PowerSearch Window
 
     :rtype: list
-	"""
-	response = SerialRequest('%R1Q,9042:')
-	
-	error = 1
-	if(response.RC==0) :
-		error = 0
-		if(Debug_Level==1) :
-			print 'Parameters: ', response.parameters
+    """
+    request = CreateRequest('9042',[])
 
-	return [error, response.RC, response.parameters]
+    response = SerialRequest(request)
+    error = 1
+    if(response.RC==0) :
+        error = 0
+        if(Debug_Level==1) :
+            print 'Parameters: ', response.parameters
+
+    return [error, response.RC, response.parameters]
 
 
-def AUT_SetSearchArea(dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled):
-	"""
-	[GeoCom **p62**]
-	
-	Define the position and dimensions and activates the PowerSearch window.
+def AUT_SetSearchArea(dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled=1):
+    """
+    [GeoCom **p62**]
 
-	:returns: [error, RC, parameters]
+    Define the position and dimensions and activates the PowerSearch window.
 
-	* error=0 and RC=0 if the request is successful
+    :returns: [error, RC, parameters]
+
+    * error=0 and RC=0 if the request is successful
     * error=1 if not
 
     :rtype: list
-	"""
-	request = CreateRequest('9043', [dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled])
-	response = SerialRequest(request)
-	
-	error = 1
-	if(response.RC==0) :
-		error = 0
+    """
+    request = CreateRequest('9043', [dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled])
+    response = SerialRequest(request)
 
-	return [error, response.RC, []]
+    error = 1
+    if(response.RC==0) :
+        error = 0
+
+    return [error, response.RC, []]
 
 
 def AUT_PS_EnableRange(bEnable):
-	"""
-	[GeoCom **p65**]
+    """
+    [GeoCom **p65**]
 
-	Enables (bEnable=1) / disables (bEnable=0) the predefined PowerSearch window, 
-	including the predefined PowerSearch range limits, set by AUT_PS_SetRange.
+    Enables (bEnable=1) / disables (bEnable=0) the predefined PowerSearch window,
+    including the predefined PowerSearch range limits, set by AUT_PS_SetRange.
 
-	:returns: [error, RC, []]
-	
-	* error=0 and RC=0 if the request is successful
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
     * error=1 if not
 
     :rtype: list
-	"""
+    """
 
-	request = CreateRequest('9048', [bEnable])
-	response = SerialRequest(request)
+    request = CreateRequest('9048', [bEnable])
+    response = SerialRequest(request)
 
-	error = 1
-	if(response.RC==0) :
-		error = 0
+    error = 1
+    if(response.RC==0) :
+        error = 0
 
-	return [error, response.RC, []]
+    return [error, response.RC, []]
 
 
 def AUT_PS_SetRange(lMinDist, lMaxDist):
-	"""
-	[GeoCom **p66**]
+    """
+    [GeoCom **p66**]
 
-	Define the PowerSearch range limits.
+    Define the PowerSearch range limits.
 
-	:returns: [error, RC, []]
-	
-	* error=0 and RC=0 if the request is successful
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
     * error=1 if not
 
     :rtype: list
-	"""
-	request = CreateRequest('9047', [lMinDist, lMaxDist])
-	response = SerialRequest(request)
+    """
+    request = CreateRequest('9047', [lMinDist, lMaxDist])
+    response = SerialRequest(request)
 
-	error = 1
-	if(response.RC==0) :
-		error = 0
+    error = 1
+    if(response.RC==0) :
+        error = 0
 
-	return [error, response.RC, []]
+    return [error, response.RC, []]
 
 
 def AUT_PS_SearchWindow():
-	"""
-	[GeoCom **p67**]
+    """
+    [GeoCom **p67**]
 
-	Start PowerSearch inside the given PowerSearch window, 
-	defined by AUT_SetSearchArea and optional by AUT_PS_SetRange.
+    Start PowerSearch inside the given PowerSearch window,
+    defined by AUT_SetSearchArea and optional by AUT_PS_SetRange.
 
-	:returns: [error, RC, []]
-	
-	* error=0 and RC=0 if the request is successful
+    :returns: [error, RC, []]
+
+    * error=0 and RC=0 if the request is successful
     * error=1 if not
-    	* RC = 8720 if the working area is not defined
-    	* RC = 8710 if not target was found
+        * RC = 8720 if the working area is not defined
+        * RC = 8710 if not target was found
 
     :rtype: list
-	"""
-	response = SerialRequest('%R1Q,9052:')
+    """
+    request = CreateRequest('9052',[])
+    response = SerialRequest(request,0,120)
+    print(str(response.RC))
+    error = 1
+    if(response.RC==0) :
+        error = 0
 
-	error = 1
-	if(response.RC==0) :
-		error = 0
-
-	return [error, response.RC, []]
+    return [error, response.RC, []]
 
 
 """#############################################################################
