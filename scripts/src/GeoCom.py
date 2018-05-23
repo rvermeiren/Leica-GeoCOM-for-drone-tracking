@@ -21,6 +21,7 @@ class ResponseClass:
     parameters = []
 
     def setResponse(self, response):
+        
         if(Debug_Level==2) :
             print 'response = ',response
         # remove the ' from the string, remove the end-line character and split it up
