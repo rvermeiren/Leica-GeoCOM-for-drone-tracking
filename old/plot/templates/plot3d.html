@@ -1,0 +1,23 @@
+<!DOCTYPE html >
+<html >
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>3D Scatter Plot</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="http://x3dom.org/x3dom/dist/x3dom-full.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='scatter_plot_3d.js')}}"></script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" type="text/css" href="http://www.x3dom.org/download/dev/x3dom.css"/>
+  </head>
+  <body>
+    <div id="divPlot"></div>
+    <script>
+      d3.select('html').style('height','80%').style('width','80%')
+      d3.select('body').style('height','80%').style('width','80%')
+      d3.select('#divPlot').style('width', "800px").style('height', "800px")
+      scatterPlot3d( d3.select('#divPlot'));
+    </script>
+  </body>
+</html>
