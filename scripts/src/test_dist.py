@@ -11,7 +11,7 @@ sys.path.append(r"src")
 import time
 import math
 import GeoCom
-from math import sin,cos
+from math import sin,cos,sqrt
 from optparse import OptionParser
 from operator import neg
 import os
@@ -25,7 +25,7 @@ DEBUG=False
 
 def powerSearchPrism(cHz = 0, cV=1.57):
     print("powerSearchPrism")
-    a = GeoCom.AUT_SetSearchArea(cHz, cV, 3.5 ,1.75,1)
+    a = GeoCom.AUT_SetSearchArea(cHz, cV, 2.5 ,0.9,1)
     b = GeoCom.AUT_PS_SetRange(5,100)
     c = GeoCom.AUT_PS_EnableRange(1)
     if GeoCom.AUT_PS_SearchWindow()[1] == 0:
@@ -238,9 +238,10 @@ def get_measure():
     """
     global OLD_COORD, FAIL_COUNT
     if FAIL_COUNT > 100:
-        while not powerSearchPrism():
-            print("search again")
-            time.sleep(2)
+        if not powerSearchPrism(-float(OLD_COORD[0]),float(OLD_COORD[1])):
+            while not powerSearchPrism():
+                print("search again")
+                time.sleep(2)
         FAIL_COUNT = 0
     try:
         [error, RC, coord] = GeoCom.TMC_GetSimpleMea(150, 1)
@@ -254,7 +255,7 @@ def get_measure():
         elif RC==1284:
             os.system('color 06')
             OLD_COORD = coord
-            res = '1;'+compute_carthesian(float(coord[0]),float(coord[1]),float(coord[2]))
+            res = '1;'+compute_carthesian(-float(coord[0]),float(coord[1]),float(coord[2]))
             print('Accuracy could not be guaranteed \n')
             # FAIL_COUNT+=1
             # print res
@@ -280,7 +281,7 @@ def get_measure():
     except GeoCom.SerialRequestError as e :
         return "4"
 
-def open(port = "COM3", baud = 57600):
+def open2(port = "COM3", baud = 57600):
     options = usage(port, baud)
     connection(options)
     setup_station(options)
@@ -297,14 +298,38 @@ def close():
 #############################################################################"""
 
 if __name__ == '__main__':
-    open("COM4", 57600)
+    open2("COM4", 57600)
     try :
         raw_input('Start the test <enter>')
+        t_start = time.time()
+        prev_coord = False
+        prev_time = 0
+        t_end = time.time()
+        output=""
         while True: #while program not interrupted by the user
-            t_start = time.time()
-            print get_measure()
-            t_end = time.time()
+            mes = get_measure()
+            res = mes.split(';')
+            if  res[0] == '0' or res[0] == '1' :
+                if prev_coord == False :
+                    res = map(float, res[0:4])
+                    prev_coord = res[0:4]
+                    prev_time = time.time()
+                else :
+                    res = map(float, res[0:4])
+                    t_end = time.time()
+                    if res[0] < 2.0:
+                        d = math.sqrt((res[1]-prev_coord[1])**2 + (res[2]-prev_coord[2])**2 + (res[3]-prev_coord[3])**2)
+                        s = d/(t_end-prev_time)
+                        print (str(t_end)+";"+mes+str(s))
+                        output = output + str(t_end)+";"+mes+str(s)+"\n"
+                        prev_coord = res
+                        prev_time = t_end
             if (t_end-t_start) > 60:
+                with open("test.txt","a") as file:
+                    try :
+                        file.write(output)
+                    except Exception :
+                        print "fail"
                 break
     except KeyboardInterrupt :
         time.sleep(2)
