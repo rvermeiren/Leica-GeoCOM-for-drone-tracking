@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Main script &mdash; Leica-GeoCOM-for-drone-tracking 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Leica-GeoCOM-for-drone-tracking 1.0 documentation" href="index.html" />
+    <link rel="next" title="GeoCOM" href="GeoCom.html" />
+    <link rel="prev" title="Leica-GeoCOM-for-drone-tracking documentation" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-alx_track">
+<span id="main-script"></span><h1>Main script<a class="headerlink" href="#module-alx_track" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-alx_track"></span><dl class="function">
+<dt id="alx_track.compute_carthesian">
+<code class="descclassname">alx_track.</code><code class="descname">compute_carthesian</code><span class="sig-paren">(</span><em>phi</em>, <em>theta</em>, <em>radius</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#compute_carthesian"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.compute_carthesian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute carthesian coordinates using vertical, horizontal angles and distance measurements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>phi</strong> (<em>float</em>) &#8211; horizontal angle (rad)</li>
+<li><strong>theta</strong> (<em>float</em>) &#8211; vertical angle (rad)</li>
+<li><strong>radius</strong> (<em>float</em>) &#8211; distance from the station to the prism (m)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">a string with the coordinates, formatted as x;y;z</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.connection">
+<code class="descclassname">alx_track.</code><code class="descname">connection</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.connection" title="Permalink to this definition">¶</a></dt>
+<dd><div class="line-block">
+<div class="line">Opens a serial connection between the computer and the total station.</div>
+<div class="line">Calls <strong>sys.exit</strong> if the connection set up failed.</div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> (<em>Namespace</em>) &#8211; contains the options to configure the connection</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.get_measure">
+<code class="descclassname">alx_track.</code><code class="descname">get_measure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#get_measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.get_measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request a complete measurement (angles and distance) to the station
+and handles the possible errors returned by the station.</p>
+<p>After 100 failed distance measurements, run a search to try to lock on the prism again.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><dl class="first docutils">
+<dt>The coordinates of the prism if :</dt>
+<dd><ul class="first last simple">
+<li>the measurement was successful (RC=0)</li>
+<li>the accuracy coudln&#8217;t be guaranteed by the system of the station, but a complete measurement was still possible (RC==1284)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first">&#8220;2&#8221; if only the angles could be measured (RC=1285 or RC=1288)</p>
+</li>
+<li><p class="first">&#8220;3&#8221; if another error occured or if a non-numeric value was received</p>
+</li>
+<li><p class="first">&#8220;4&#8221; if a GeoCom.SerialRequestError occured</p>
+</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.searchPrism">
+<code class="descclassname">alx_track.</code><code class="descname">searchPrism</code><span class="sig-paren">(</span><em>Hz=20</em>, <em>V=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#searchPrism"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.searchPrism" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search for the prism in the given area.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>Hz</strong> (<em>int</em>) &#8211; horizontal area in degrees</li>
+<li><strong>V</strong> (<em>int</em>) &#8211; vertical area in degrees</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True if the prism is locked, False otherwise</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.set_laser">
+<code class="descclassname">alx_track.</code><code class="descname">set_laser</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#set_laser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.set_laser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn on/off the laser of the total station.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>int</em>) &#8211; on (value=1) or off (value=0)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.set_prism_type">
+<code class="descclassname">alx_track.</code><code class="descname">set_prism_type</code><span class="sig-paren">(</span><em>big_prism</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#set_prism_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.set_prism_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the prism type as &#8220;360 big prism&#8221; if <em>big_prism</em> is True, or to &#8220;360 small prism&#8221; if False.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>big_prism</strong> (<em>bool</em>) &#8211; Determines if the type of prism if &#8220;big&#8221; or &#8220;small&#8221;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.set_x_axis">
+<code class="descclassname">alx_track.</code><code class="descname">set_x_axis</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#set_x_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.set_x_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the orientation of the carthesian plan by fixing <strong>x</strong> axis.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.setup_station_manual">
+<code class="descclassname">alx_track.</code><code class="descname">setup_station_manual</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#setup_station_manual"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.setup_station_manual" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the station for the purpose of tracking a prism and make fast reapeated measurements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> (<em>Namespace</em>) &#8211; contains the options to configure the station</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if the setup succeeded, False otherwise</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="alx_track.usage">
+<code class="descclassname">alx_track.</code><code class="descname">usage</code><span class="sig-paren">(</span><em>COM='COM3'</em>, <em>baud=57600</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/alx_track.html#usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#alx_track.usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define and show usage of the script.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>COM</strong> (<em>str</em>) &#8211; number of the COM port to which the USB cable is connected.</li>
+<li><strong>baud</strong> (<em>int</em>) &#8211; baud rate of the communication between the PC and the total station.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>A higher baud rate will allow more measurements per second but may cause problems (e.g. lack of precision),
+while a lower one will make less measurements per second but they will be more reliable.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The baud rate HAS to be the same as the one set on the total station! Otherwise the script won&#8217;t work correctly.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of values set for the options, or default values</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Namespace object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Leica-GeoCOM-for-drone-tracking documentation</a></li>
+      <li>Next: <a href="GeoCom.html" title="next chapter">GeoCOM</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/alx_track.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Nicolas Sorensen and Rémy Vermeiren.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/alx_track.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

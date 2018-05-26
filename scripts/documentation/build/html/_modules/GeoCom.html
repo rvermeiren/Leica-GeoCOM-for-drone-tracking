@@ -1,0 +1,1353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GeoCom &mdash; Leica-GeoCOM-for-drone-tracking 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Leica-GeoCOM-for-drone-tracking 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for GeoCom</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: GeoCom</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">r&quot;C:\Python27\Lib&quot;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">r&quot;C:\Python27\Lib\site-packages&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">serial</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">ser</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">Debug_Level</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">GTrId</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<div class="viewcode-block" id="ResponseClass"><a class="viewcode-back" href="../GeoCom.html#GeoCom.ResponseClass">[docs]</a><span class="k">class</span> <span class="nc">ResponseClass</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ResponseClass destinate to manage the response get from the station and the</span>
+<span class="sd">    error code return</span>
+
+<span class="sd">    :attribute RC_COM: Communication return code</span>
+<span class="sd">    :attribute TrId: Transaction id</span>
+<span class="sd">    :attribute RC: return code</span>
+<span class="sd">    :attribute parameters: List of returns parameters</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">RC_COM</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">TrId</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">RC</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">parameters</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="ResponseClass.setResponse"><a class="viewcode-back" href="../GeoCom.html#GeoCom.ResponseClass.setResponse">[docs]</a>    <span class="k">def</span> <span class="nf">setResponse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instanciate a ResponseClass from a ASCII response</span>
+<span class="sd">        :params response: ASCII response get from the station</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;response = &#39;</span><span class="p">,</span><span class="n">response</span>
+        <span class="c1"># remove the &#39; from the string, remove the end-line character and split it up</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="c1"># print words</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RC_COM</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">words2</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TrId</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">words2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">RC</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">words2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)]</span>
+            <span class="k">if</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">RC</span><span class="o">!=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+                <span class="k">print</span> <span class="s1">&#39;Problem occurred, Error code: &#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">RC</span></div></div>
+
+<div class="viewcode-block" id="SerialRequestError"><a class="viewcode-back" href="../GeoCom.html#GeoCom.SerialRequestError">[docs]</a><span class="k">class</span> <span class="nc">SerialRequestError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">getTrId</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">words</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">t_timeout</span> <span class="o">=</span> <span class="mi">3</span><span class="p">):</span> <span class="c1">#default 3</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+        <span class="k">print</span> <span class="s1">&#39;request = &#39;</span><span class="p">,</span> <span class="n">request</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">getTrId</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">ResponseClass</span><span class="p">()</span>
+    <span class="k">global</span> <span class="n">ser</span>
+
+    <span class="k">try</span> <span class="p">:</span> <span class="c1"># try method for the case that TS is not connected</span>
+        <span class="n">ser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ser</span><span class="o">.</span><span class="n">inWaiting</span><span class="p">())</span>
+
+
+        <span class="n">ser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">request</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">t_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># do as long as:</span>
+        <span class="c1"># 1: buffer has specific length</span>
+        <span class="c1"># 2: if specific length not defined (=0), then until buffer &gt; 0</span>
+        <span class="c1"># 3: timeout not reached</span>
+
+        <span class="k">while</span><span class="p">((</span><span class="n">ser</span><span class="o">.</span><span class="n">inWaiting</span><span class="p">()</span><span class="o">&lt;</span><span class="n">length</span> <span class="ow">or</span> <span class="p">(</span><span class="n">length</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ser</span><span class="o">.</span><span class="n">inWaiting</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">))</span> <span class="ow">and</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t_start</span><span class="o">&lt;</span><span class="n">t_timeout</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">t_start</span><span class="o">&gt;=</span><span class="n">t_timeout</span><span class="p">)</span> <span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">RC</span> <span class="o">=</span> <span class="mi">3077</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.025</span><span class="p">)</span>    <span class="c1"># Short break to make sure serial port is not read while stuff is written</span>
+
+        <span class="n">serial_output</span> <span class="o">=</span> <span class="n">ser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ser</span><span class="o">.</span><span class="n">inWaiting</span><span class="p">())</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">setResponse</span><span class="p">(</span><span class="n">serial_output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">TrId</span> <span class="o">!=</span> <span class="nb">id</span> <span class="p">:</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">RC</span> <span class="o">=</span> <span class="mi">3077</span>
+            <span class="k">return</span> <span class="n">response</span>
+
+        <span class="c1">#if(Debug_Level==2) :</span>
+            <span class="c1">#print &#39;serial_output: &#39;,serial_output</span>
+
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span> <span class="k">as</span> <span class="n">e</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyboardInterrupt</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SerialRequestError</span><span class="p">(</span><span class="s2">&quot;Leica TS communication error - not connected?&quot;</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">RC</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">response</span>
+
+<span class="k">def</span> <span class="nf">HexToDec</span><span class="p">(</span><span class="n">hex_in</span><span class="p">):</span>
+
+    <span class="n">dec_out</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">hex_in</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dec_out</span>
+
+
+<div class="viewcode-block" id="CreateRequest"><a class="viewcode-back" href="../GeoCom.html#GeoCom.CreateRequest">[docs]</a><span class="k">def</span> <span class="nf">CreateRequest</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;[&lt;LF&gt;]%R1Q,&lt;RPC&gt;[,&lt;TrId&gt;]:[&lt;P0&gt;][,&lt;P1&gt;,...]&lt;Term&gt; &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">GTrId</span>
+    <span class="c1">#\n is LF flag to flush buffer</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">%R1Q,&#39;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span><span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">GTrId</span><span class="p">)</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span>
+
+    <span class="n">GTrId</span><span class="o">+=</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">GTrId</span> <span class="o">==</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">GTrId</span><span class="o">=</span><span class="mi">0</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">args</span><span class="o">!=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span> <span class="p">:</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span>
+
+            <span class="n">request</span> <span class="o">=</span> <span class="n">request</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">request</span></div>
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">########################### COM - COMMUNICATION ################################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Communication; functions to access some aspects of TPS1200 control, which are</span>
+<span class="sd">close to communication.</span>
+<span class="sd">These functions relate either to the client side or to the server side.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module :: GeoCom.com</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="COM_OpenConnection"><a class="viewcode-back" href="../GeoCom.html#GeoCom.COM_OpenConnection">[docs]</a><span class="k">def</span> <span class="nf">COM_OpenConnection</span><span class="p">(</span><span class="n">ePort</span><span class="p">,</span> <span class="n">eRate</span><span class="p">,</span> <span class="n">nRetries</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p26**]</span>
+
+<span class="sd">    Open a PC serial port and attempts to detect a theodolite based on the given baud rate.</span>
+
+<span class="sd">    :param ePort: serial port</span>
+<span class="sd">    :type ePort: str</span>
+<span class="sd">    :param eRate: baud rate</span>
+<span class="sd">    :type eRate: int</span>
+<span class="sd">    :param nRetries: number of retries to initiate a connection</span>
+<span class="sd">    :type nRetries: int</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the connection attempt was successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">ser</span>
+    <span class="k">try</span> <span class="p">:</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">serial</span><span class="o">.</span><span class="n">Serial</span><span class="p">(</span>
+            <span class="n">port</span><span class="o">=</span><span class="n">ePort</span><span class="p">,</span>
+            <span class="n">baudrate</span><span class="o">=</span><span class="n">eRate</span><span class="p">,</span>
+            <span class="n">parity</span><span class="o">=</span><span class="n">serial</span><span class="o">.</span><span class="n">PARITY_NONE</span><span class="p">,</span>
+            <span class="n">stopbits</span><span class="o">=</span><span class="n">serial</span><span class="o">.</span><span class="n">STOPBITS_ONE</span><span class="p">,</span>
+            <span class="n">bytesize</span><span class="o">=</span><span class="n">serial</span><span class="o">.</span><span class="n">EIGHTBITS</span>
+        <span class="p">)</span>
+
+        <span class="k">while</span><span class="p">(</span><span class="ow">not</span> <span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">())</span> <span class="p">:</span>
+            <span class="n">ser</span><span class="o">.</span><span class="n">open</span><span class="p">()</span>
+            <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">())</span> <span class="p">:</span>
+                <span class="n">ser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Problem opening port&#39;</span>
+
+        <span class="c1"># 0 = everything ok</span>
+        <span class="k">return</span> <span class="p">[</span><span class="ow">not</span> <span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">(),</span><span class="n">ser</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s2">&quot;Connection Error - Leica TS not connected?</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">print</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,[]]</span></div>
+
+
+<div class="viewcode-block" id="COM_CloseConnection"><a class="viewcode-back" href="../GeoCom.html#GeoCom.COM_CloseConnection">[docs]</a><span class="k">def</span> <span class="nf">COM_CloseConnection</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p27**]</span>
+
+<span class="sd">    Close the (current) open port and releases an established connection.</span>
+
+<span class="sd">    :returns: [error, RC, []]. error=0 and RC=0 if the request is successful.</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">global</span> <span class="n">ser</span>
+    <span class="n">ser</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+    <span class="k">if</span><span class="p">(</span><span class="ow">not</span> <span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+        <span class="k">print</span> <span class="s1">&#39;Problem closing port&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">ser</span><span class="o">.</span><span class="n">isOpen</span><span class="p">(),</span><span class="mi">0</span><span class="p">,[]]</span></div>
+
+
+<div class="viewcode-block" id="COM_SwitchOnTPS"><a class="viewcode-back" href="../GeoCom.html#GeoCom.COM_SwitchOnTPS">[docs]</a><span class="k">def</span> <span class="nf">COM_SwitchOnTPS</span><span class="p">(</span><span class="n">eOnMode</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p96**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;111&#39;</span><span class="p">,[</span><span class="n">eOnMode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Turn on TPS&#39;</span>
+
+    <span class="k">elif</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">5</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;TPS already turned on&#39;</span>
+
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Problem turning TPS on&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,[]]</span></div>
+
+
+<div class="viewcode-block" id="COM_SwitchOffTPS"><a class="viewcode-back" href="../GeoCom.html#GeoCom.COM_SwitchOffTPS">[docs]</a><span class="k">def</span> <span class="nf">COM_SwitchOffTPS</span><span class="p">(</span><span class="n">eOffMode</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p97**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;112&#39;</span><span class="p">,[</span><span class="n">eOffMode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">60</span><span class="p">)</span>
+
+
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Shut down TPS&#39;</span>
+
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Error shutting down TPS&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,[]]</span></div>
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">########################## CSV - CENTRAL SERVICES ##############################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Central Services; this module provides functions to get or set central/basic</span>
+<span class="sd">information about the TPS1200 instrument.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="CSV_GetDateTime"><a class="viewcode-back" href="../GeoCom.html#GeoCom.CSV_GetDateTime">[docs]</a><span class="k">def</span> <span class="nf">CSV_GetDateTime</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p107**]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">DateTime</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="s1">&#39;%R1Q,5008:&#39;</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">DateTime</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">))</span> <span class="p">:</span>
+            <span class="n">DateTime</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">HexToDec</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Date and Time: &#39;</span><span class="p">,</span> <span class="n">DateTime</span>
+
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span><span class="n">DateTime</span><span class="p">]</span></div>
+
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">########################## AUT - AUTOMATION ################################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Automatisation; a module which provides functions like the control of the</span>
+<span class="sd">Automatic Target Recognition, Change Face function or Positioning functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">AUT_NORMAL = 0, // fast positioning mode</span>
+<span class="sd">AUT_PRECISE = 1 // exact positioning mode</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">AUT_ATRMODE // Possible modes of the target</span>
+<span class="sd">// recognition</span>
+<span class="sd">AUT_POSITION = 0, // Positioning to the hz- and v-angle</span>
+<span class="sd">AUT_TARGET = 1 // Positioning to a target in the</span>
+<span class="sd">// environment of the hz- and v-angle.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AUT_MakePositioning"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUT_MakePositioning">[docs]</a><span class="k">def</span> <span class="nf">AUT_MakePositioning</span><span class="p">(</span><span class="n">Hz</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">POSMode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ATRMode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bDummy</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p49**]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9027&#39;</span><span class="p">,[</span><span class="n">Hz</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">POSMode</span><span class="p">,</span> <span class="n">ATRMode</span><span class="p">,</span> <span class="n">bDummy</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Going to new position: &#39;</span><span class="p">,</span> <span class="n">Hz</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">V</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<span class="c1"># powersearch</span>
+<span class="c1"># TODO</span>
+
+
+<div class="viewcode-block" id="AUT_Search"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUT_Search">[docs]</a><span class="k">def</span> <span class="nf">AUT_Search</span><span class="p">(</span><span class="n">Hz_Area</span><span class="p">,</span> <span class="n">V_Area</span><span class="p">,</span> <span class="n">bDummy</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p56**]</span>
+
+<span class="sd">    Performs an automatic target search within a given area.</span>
+
+<span class="sd">    :parem Hz: horizontal search region [rad]</span>
+<span class="sd">    :type Hz: int</span>
+<span class="sd">    :param V: vertical search region [rad]</span>
+<span class="sd">    :type V: int</span>
+<span class="sd">    :param bDummy: reserved for future use, always set to false (quick reminder: *0* in GeoCOM is considered false)</span>
+<span class="sd">    :type bDummy: int</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the search is successful</span>
+<span class="sd">    * error=1 and RC=8710 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9029&#39;</span><span class="p">,[</span><span class="n">Hz_Area</span><span class="p">,</span> <span class="n">V_Area</span><span class="p">,</span> <span class="n">bDummy</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Target search successful&#39;</span>
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">8710</span><span class="p">)</span> <span class="p">:</span>
+                <span class="k">print</span> <span class="s1">&#39;No target found&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+
+<span class="c1"># Does not work - connection time out...</span>
+<span class="c1"># seems to be not needed, when the Leica is directed to the prism</span>
+<div class="viewcode-block" id="AUT_FineAdjust"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUT_FineAdjust">[docs]</a><span class="k">def</span> <span class="nf">AUT_FineAdjust</span><span class="p">(</span><span class="n">dSrchHz</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">dSrchV</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p54**]</span>
+
+<span class="sd">    Precisely positions the telescope crosshairs onto the target prism.</span>
+
+<span class="sd">    :param dSrchHz: Search range Hz-axis [rad]</span>
+<span class="sd">    :type dSrchHz: float</span>
+<span class="sd">    :param dSrchV: Search range V-axis [rad]</span>
+<span class="sd">    :type dSrchV: float</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 otherwise</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9037&#39;</span><span class="p">,[</span><span class="n">dSrchHz</span><span class="p">,</span> <span class="n">dSrchV</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">120</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+
+<div class="viewcode-block" id="AUT_LockIn"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUT_LockIn">[docs]</a><span class="k">def</span> <span class="nf">AUT_LockIn</span><span class="p">()</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p60**]</span>
+
+<span class="sd">    If LOCK mode is activated (AUS_SetUserLockState), then the function starts the target tracking.</span>
+<span class="sd">    The command is only possible if a AUT_FineAdjust command has been previously sent and</span>
+<span class="sd">    successfully executed.</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the lock is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9013&#39;</span><span class="p">,[])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Lock successful&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+
+<span class="k">def</span> <span class="nf">AUT_GetSearchArea</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCom **p61**]</span>
+
+<span class="sd">    Returns the current position and size of the PowerSearch Window.</span>
+
+<span class="sd">    :returns: [error, RC, parameters]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+<span class="sd">    * parameters contains the position and size of the PowerSearch Window</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9042&#39;</span><span class="p">,[])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Parameters: &#39;</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">parameters</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">AUT_SetSearchArea</span><span class="p">(</span><span class="n">dCenterHz</span><span class="p">,</span> <span class="n">dCenterV</span><span class="p">,</span> <span class="n">dRangeHz</span><span class="p">,</span> <span class="n">dRangeV</span><span class="p">,</span> <span class="n">bEnabled</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCom **p62**]</span>
+
+<span class="sd">    Define the position and dimensions and activates the PowerSearch window.</span>
+
+<span class="sd">    :returns: [error, RC, parameters]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9043&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">dCenterHz</span><span class="p">,</span> <span class="n">dCenterV</span><span class="p">,</span> <span class="n">dRangeHz</span><span class="p">,</span> <span class="n">dRangeV</span><span class="p">,</span> <span class="n">bEnabled</span><span class="p">])</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span>
+
+
+<span class="k">def</span> <span class="nf">AUT_PS_EnableRange</span><span class="p">(</span><span class="n">bEnable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCom **p65**]</span>
+
+<span class="sd">    Enables (bEnable=1) / disables (bEnable=0) the predefined PowerSearch window,</span>
+<span class="sd">    including the predefined PowerSearch range limits, set by AUT_PS_SetRange.</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9048&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">bEnable</span><span class="p">])</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span>
+
+
+<span class="k">def</span> <span class="nf">AUT_PS_SetRange</span><span class="p">(</span><span class="n">lMinDist</span><span class="p">,</span> <span class="n">lMaxDist</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCom **p66**]</span>
+
+<span class="sd">    Define the PowerSearch range limits.</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9047&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">lMinDist</span><span class="p">,</span> <span class="n">lMaxDist</span><span class="p">])</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span>
+
+
+<span class="k">def</span> <span class="nf">AUT_PS_SearchWindow</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCom **p67**]</span>
+
+<span class="sd">    Start PowerSearch inside the given PowerSearch window,</span>
+<span class="sd">    defined by AUT_SetSearchArea and optional by AUT_PS_SetRange.</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+<span class="sd">        * RC = 8720 if the working area is not defined</span>
+<span class="sd">        * RC = 8710 if not target was found</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;9052&#39;</span><span class="p">,[])</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">120</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">))</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span>
+
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">#################### EDM - Electronic Distance Measurement #####################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Electronic Distance Meter; the module, which measures distances.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="EDM_Laserpointer"><a class="viewcode-back" href="../GeoCom.html#GeoCom.EDM_Laserpointer">[docs]</a><span class="k">def</span> <span class="nf">EDM_Laserpointer</span><span class="p">(</span><span class="n">eOn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p114**]</span>
+
+<span class="sd">    Turns on/off the laser pointer of the total station.</span>
+
+<span class="sd">    :param eOn: On (*1*) or Off (*0*)</span>
+<span class="sd">    :type eOn: int</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;1004&#39;</span><span class="p">,[</span><span class="n">eOn</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">30</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Laserpointer turned on/off&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">################ TMC - Theodolite Measurement and Calculation ##################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Theodolite Measurement and Calculation; the core module for getting measurement</span>
+<span class="sd">data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="TMC_SetOrientation"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_SetOrientation">[docs]</a><span class="k">def</span> <span class="nf">TMC_SetOrientation</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p148**]</span>
+
+<span class="sd">    Orientate the instrument in Hz direction. It is a combination of an angle measurement to</span>
+<span class="sd">    get the Hz offset and afterwards setting the angle Hz offset in order to orientate onto a target.</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2113&#39;</span><span class="p">,[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<div class="viewcode-block" id="TMC_DoMeasure"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_DoMeasure">[docs]</a><span class="k">def</span> <span class="nf">TMC_DoMeasure</span><span class="p">(</span><span class="n">cmd</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span> <span class="c1">#TMC Measurement Modes in geocom manual p.91</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p141**]</span>
+
+<span class="sd">    Carries out a distance measurement. Please note that this command does not output any values (distances).</span>
+<span class="sd">    In order to get the values you have to use other measurement functions such as TMC_GetCoordinate , TMC_GetSimpleMea or TMC_GetAngle .</span>
+
+<span class="sd">    :param cmd: TMC measurement mode (see **p127** of GeoCOM ref manual)</span>
+<span class="sd">    :type cmd: int</span>
+<span class="sd">    :param mode: Inclination sensor measurement mode</span>
+<span class="sd">    :type mode: int</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2008&#39;</span><span class="p">,[</span><span class="n">cmd</span><span class="p">,</span><span class="n">mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Measuring successful&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+
+<div class="viewcode-block" id="TMC_SetEdmMode"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_SetEdmMode">[docs]</a><span class="k">def</span> <span class="nf">TMC_SetEdmMode</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p167**]</span>
+
+<span class="sd">    Set the current measurement mode.</span>
+
+<span class="sd">    :param mode: measurement mode</span>
+<span class="sd">    :type mode: int</span>
+
+<span class="sd">    Measurement modes available (check **p127**-**128** for further information) :</span>
+
+<span class="sd">    Format : *&lt;int value&gt;*. *&lt;enum constant name&gt;* : *&lt;description&gt;*</span>
+
+<span class="sd">    0. EDM_MODE_NOT_USED : Init value</span>
+<span class="sd">    1. EDM_SINGLE_TAPE : IR Standard Reflector Tape</span>
+<span class="sd">    2. EDM_SINGLE_STANDARD : IR Standard</span>
+<span class="sd">    3. EDM_SINGLE_FAST : IR Fast</span>
+<span class="sd">    4. EDM_SINGLE_LRANGE : LO Standard</span>
+<span class="sd">    5. EDM_SINGLE_SRANGE : RL Standard</span>
+<span class="sd">    6. EDM_CONT_STANDARD : Standard repeated measurement</span>
+<span class="sd">    7. EDM_CONT_DYNAMIC : IR Tacking</span>
+<span class="sd">    8. EDM_CONT_REFLESS : RL Tracking</span>
+<span class="sd">    9. EDM_CONT_FAST : Fast repeated measurement</span>
+<span class="sd">    10. EDM_AVERAGE_IR : IR Average</span>
+<span class="sd">    11. EDM_AVERAGE_SR : RL Average</span>
+<span class="sd">    12. EDM_AVERAGE_LR : LO Average</span>
+<span class="sd">    13. EDM_PRECISE_IR : IR Precise (TS30, TM30)</span>
+<span class="sd">    14. EDM_PRECISE_TAPE : IR Precise Reflector Tape (TS30, TM30)</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2020&#39;</span><span class="p">,[</span><span class="n">mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;EDM Mode set successfully&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+
+<div class="viewcode-block" id="TMC_GetCoordinate"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_GetCoordinate">[docs]</a><span class="k">def</span> <span class="nf">TMC_GetCoordinate</span><span class="p">(</span><span class="n">WaitTime</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">mode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p130**] &quot;&quot;&quot;</span>
+
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2082&#39;</span><span class="p">,[</span><span class="n">WaitTime</span><span class="p">,</span><span class="n">mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">==</span><span class="mi">8</span><span class="p">)</span> <span class="p">:</span>
+
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">])]</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Coordinates read successfully: &#39;</span><span class="p">,</span> <span class="n">coord</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">coord</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TMC_GetStation"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_GetStation">[docs]</a><span class="k">def</span> <span class="nf">TMC_GetStation</span><span class="p">(</span><span class="n">WaitTime</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p155**] &quot;&quot;&quot;</span>
+
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2009&#39;</span><span class="p">,[</span><span class="n">WaitTime</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">==</span><span class="mi">4</span><span class="p">)</span> <span class="p">:</span>
+
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">3</span><span class="p">])]</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Station coordinates received successfully! &#39;</span><span class="p">,</span><span class="n">coord</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<div class="viewcode-block" id="TMC_GetSimpleMea"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_GetSimpleMea">[docs]</a><span class="k">def</span> <span class="nf">TMC_GetSimpleMea</span><span class="p">(</span><span class="n">WaitTime</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">mode</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">:</span> <span class="c1">#TMC_GetSimpleMea - Returns angle and distance measurement - geocom manual p.95</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p132**]</span>
+
+<span class="sd">    Returns the angles and distance measurement data. This command does not issue a new distance measurement.</span>
+<span class="sd">    A distance measurement has to be started in advance (call TMC_DoMeasure before this function).</span>
+<span class="sd">    If no valid distance measurement is available and the distance measurement unit is not activated</span>
+<span class="sd">    (by TMC_DoMeasure before the TMC_GetSimpleMea call) the angle measurement result is returned</span>
+<span class="sd">    after the **WaitTime**.</span>
+
+<span class="sd">    :param WaitTime: Delay to wait for the distance measurement to finish [ms]</span>
+<span class="sd">    :type WaitTime: int</span>
+<span class="sd">    :param mode: Inclination sensor measurement mode</span>
+<span class="sd">    :type mode: int</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not. In this case RC can be equal to:</span>
+<span class="sd">        * 1284 : Accuracy of the measurement could not be verified by the system of the total station</span>
+<span class="sd">        * 1285 : Only the angles of the station could be obtained (no distance measurement available)</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2108&#39;</span><span class="p">,[</span><span class="n">WaitTime</span><span class="p">,</span><span class="n">mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[]]</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Coordinates read successfully: &#39;</span><span class="p">,</span> <span class="n">coord</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">1284</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">1284</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Accuracy could not be verified: &#39;</span><span class="p">,</span> <span class="n">coord</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">1285</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">1285</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Angles read successfully: &#39;</span><span class="p">,</span> <span class="n">coord</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">coord</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TMC_QuickDist"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_QuickDist">[docs]</a><span class="k">def</span> <span class="nf">TMC_QuickDist</span><span class="p">()</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p138**] &quot;&quot;&quot;</span>
+
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2117&#39;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">coord</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TMC_GetAngle"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_GetAngle">[docs]</a><span class="k">def</span> <span class="nf">TMC_GetAngle</span><span class="p">(</span><span class="n">mode</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Refer to *TMC_GetAngle5* in GeoCOM manual **p136** &quot;&quot;&quot;</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2107&#39;</span><span class="p">,[</span><span class="n">mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">==</span><span class="mi">2</span><span class="p">)</span> <span class="p">:</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">):</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">coord</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TMC_GetEdmMode"><a class="viewcode-back" href="../GeoCom.html#GeoCom.TMC_GetEdmMode">[docs]</a><span class="k">def</span> <span class="nf">TMC_GetEdmMode</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+
+<span class="c1">#    EDM_MODE = {0 : &#39;EDM_MODE_NOT_USED&#39;,</span>
+<span class="c1">#                1 : &#39;EDM_SINGLE_TAPE&#39;,</span>
+<span class="c1">#                2 : &#39;EDM_SINGLE_STANDARD&#39;,</span>
+<span class="c1">#                3 : &#39;EDM_SINGLE_FAST&#39;,</span>
+<span class="c1">#                4 : &#39;EDM_SINGLE_LRANGE&#39;,</span>
+<span class="c1">#                5 : &#39;BAP_CONT_REF_FAST&#39;,</span>
+<span class="c1">#                6 : &#39;BAP_CONT_RLESS_VISIBLE&#39;,</span>
+<span class="c1">#                7 : &#39;BAP_AVG_REF_STANDARD&#39;,</span>
+<span class="c1">#                8 : &#39;BAP_AVG_REF_VISIBLE&#39;,</span>
+<span class="c1">#                9 : &#39;BAP_AVG_RLESS_VISIBLE&#39;,</span>
+<span class="c1">#                10 :&#39;BAP_CONT_REF_SYNCHRO&#39;,</span>
+<span class="c1">#                11 :&#39;BAP_SINGLE_REF_PRECISE&#39;}</span>
+<span class="c1">##    EDM_MODE :</span>
+<span class="c1">##        EDM_MODE_NOT_USED       0, // Init value</span>
+<span class="c1">##                 1, // IR Standard Reflector Tape</span>
+<span class="c1">##             2, // IR Standard</span>
+<span class="c1">##                 3, // IR Fast</span>
+<span class="c1">##               4, // LO Standard</span>
+<span class="c1">##        EDM_SINGLE_SRANGE       5, // RL Standard</span>
+<span class="c1">##        EDM_CONT_STANDARD       6, // Standard repeated measurement</span>
+<span class="c1">##        EDM_CONT_DYNAMIC        7, // IR Tacking</span>
+<span class="c1">##        EDM_CONT_REFLESS        8, // RL Tracking</span>
+<span class="c1">##        EDM_CONT_FAST           9, // Fast repeated measurement</span>
+<span class="c1">##        EDM_AVERAGE_IR          10,// IR Average</span>
+<span class="c1">##        EDM_AVERAGE_SR          11,// RL Average</span>
+<span class="c1">##        EDM_AVERAGE_LR          12,// LO Average</span>
+<span class="c1">##        EDM_PRECISE_IR          13,// IR Precise (TS30, TM30)</span>
+<span class="c1">##        EDM_PRECISE_TAPE        14,// IR Precise Reflector Tape (TS30, TM30)</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;2021&#39;</span><span class="p">,[])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;EDM Mode read successfully: &#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">]</span></div>
+
+<span class="c1">#</span>
+<span class="c1">#def TMC_SetEdmMode(mode) :</span>
+<span class="c1">#</span>
+<span class="c1">##    EDM_MODE :</span>
+<span class="c1">##        EDM_MODE_NOT_USED       0, // Init value</span>
+<span class="c1">##        EDM_SINGLE_TAPE         1, // IR Standard Reflector Tape</span>
+<span class="c1">##        EDM_SINGLE_STANDARD     2, // IR Standard</span>
+<span class="c1">##        EDM_SINGLE_FAST         3, // IR Fast</span>
+<span class="c1">##        EDM_SINGLE_LRANGE       4, // LO Standard</span>
+<span class="c1">##        EDM_SINGLE_SRANGE       5, // RL Standard</span>
+<span class="c1">##        EDM_CONT_STANDARD       6, // Standard repeated measurement</span>
+<span class="c1">##        EDM_CONT_DYNAMIC        7, // IR Tacking</span>
+<span class="c1">##        EDM_CONT_REFLESS        8, // RL Tracking</span>
+<span class="c1">##        EDM_CONT_FAST           9, // Fast repeated measurement</span>
+<span class="c1">##        EDM_AVERAGE_IR          10,// IR Average</span>
+<span class="c1">##        EDM_AVERAGE_SR          11,// RL Average</span>
+<span class="c1">##        EDM_AVERAGE_LR          12,// LO Average</span>
+<span class="c1">##        EDM_PRECISE_IR          13,// IR Precise (TS30, TM30)</span>
+<span class="c1">##        EDM_PRECISE_TAPE        14,// IR Precise Reflector Tape (TS30, TM30)</span>
+<span class="c1">#</span>
+<span class="c1">#    request = CreateRequest(&#39;2020&#39;,[mode])</span>
+<span class="c1">#</span>
+<span class="c1">#    response = SerialRequest(request)</span>
+<span class="c1">#</span>
+<span class="c1">#    error = 1</span>
+<span class="c1">#    if(response.RC==0) :</span>
+<span class="c1">#        error = 0</span>
+<span class="c1">#        if(Debug_Level==1) :</span>
+<span class="c1">#            print &#39;EDM Mode set successfully&#39;</span>
+<span class="c1">#</span>
+<span class="c1">#    return [error, response.RC, []]</span>
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">########################## MOT - Motorization ##################################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Motorization; the part, which can be used to control the movement and the speed</span>
+<span class="sd">of movements of the instrument.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">enum MOT_MODE #GeoCom manual p83</span>
+<span class="sd">{</span>
+<span class="sd">MOT_POSIT = 0, // configured for relative postioning</span>
+<span class="sd">MOT_OCONST = 1, // configured for constant speed</span>
+<span class="sd">// the only valid mode</span>
+<span class="sd">// for SetVelocity is MOD_OCONST</span>
+<span class="sd">MOT_MANUPOS = 2, // configured for manual positioning</span>
+<span class="sd">// default setting</span>
+<span class="sd">MOT_LOCK = 3, // configured as &quot;Lock-In&quot;-controller</span>
+<span class="sd">MOT_BREAK = 4, // configured as &quot;Brake&quot;-controller</span>
+<span class="sd">// do not use 5 and 6</span>
+<span class="sd">MOT_TERM = 7 // terminates the controller task</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="MOT_StartController"><a class="viewcode-back" href="../GeoCom.html#GeoCom.MOT_StartController">[docs]</a><span class="k">def</span> <span class="nf">MOT_StartController</span><span class="p">(</span><span class="n">ControlMode</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p119**] &quot;&quot;&quot;</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;6001&#39;</span><span class="p">,[</span><span class="n">ControlMode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Motor controller started&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">enum MOT_STOPMODE #GeoCom manual p83</span>
+<span class="sd">{</span>
+<span class="sd">MOT_NORMAL = 0, // slow down with current acceleration</span>
+<span class="sd">MOT_SHUTDOWN = 1 // slow down by switch off power supply</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="MOT_StopController"><a class="viewcode-back" href="../GeoCom.html#GeoCom.MOT_StopController">[docs]</a><span class="k">def</span> <span class="nf">MOT_StopController</span><span class="p">(</span><span class="n">Mode</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p120**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;6000&#39;</span><span class="p">,[</span><span class="n">Mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Motor controller stopped&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<div class="viewcode-block" id="MOT_SetVelocity"><a class="viewcode-back" href="../GeoCom.html#GeoCom.MOT_SetVelocity">[docs]</a><span class="k">def</span> <span class="nf">MOT_SetVelocity</span><span class="p">(</span><span class="n">Hz_speed</span><span class="p">,</span><span class="n">v_speed</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p121**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;6004&#39;</span><span class="p">,[</span><span class="n">Hz_speed</span><span class="p">,</span><span class="n">v_speed</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Velocity set&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">######################## BAP - Basic Applications ##############################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">Basic Applications; some functions, which can easily be used to get measuring</span>
+<span class="sd">data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">BAP_TARGET_TYPE</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">:</span> <span class="s1">&#39;BAP_REFL_USE&#39;</span><span class="p">,</span> <span class="c1"># with reflector</span>
+                    <span class="mi">1</span> <span class="p">:</span> <span class="s1">&#39;BAP_REFL_LESS&#39;</span><span class="p">}</span> <span class="c1"># without reflector</span>
+
+<div class="viewcode-block" id="BAP_GetTargetType"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_GetTargetType">[docs]</a><span class="k">def</span> <span class="nf">BAP_GetTargetType</span><span class="p">()</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p71**] &quot;&quot;&quot;</span>
+    <span class="n">parameter</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17022&#39;</span><span class="p">,[])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">parameter</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Target type: &#39;</span><span class="p">,</span> <span class="n">BAP_TARGET_TYPE</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">parameter</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="BAP_SetTargetType"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_SetTargetType">[docs]</a><span class="k">def</span> <span class="nf">BAP_SetTargetType</span><span class="p">(</span><span class="n">eTargetType</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p72**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17021&#39;</span><span class="p">,[</span><span class="n">eTargetType</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Target type set successfully &#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<span class="c1">#BAP_TARGET_TYPE</span>
+<span class="c1">#BAP_REFL_USE = 0 // with reflector</span>
+<span class="c1">#BAP_REFL_LESS = 1 // without reflector</span>
+
+<span class="n">BAP_PRISMTYPE</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_ROUND&#39;</span><span class="p">,</span> <span class="s1">&#39;Leica Circular Prism&#39;</span><span class="p">],</span>
+                 <span class="mi">1</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_MINI&#39;</span><span class="p">,</span> <span class="s1">&#39;Leica Mini Prism&#39;</span><span class="p">],</span>
+                 <span class="mi">2</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_TAPE&#39;</span><span class="p">,</span> <span class="s1">&#39;Leica Reflector Tape&#39;</span><span class="p">],</span>
+                 <span class="mi">3</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_360&#39;</span><span class="p">,</span> <span class="s1">&#39;Leica 360 Prism&#39;</span><span class="p">],</span>
+                 <span class="mi">4</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_USER1&#39;</span><span class="p">,</span> <span class="s1">&#39;not supported&#39;</span><span class="p">],</span>
+                 <span class="mi">5</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_USER2&#39;</span><span class="p">,</span> <span class="s1">&#39;not supported&#39;</span><span class="p">],</span>
+                 <span class="mi">6</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_USER3&#39;</span><span class="p">,</span> <span class="s1">&#39;not supported&#39;</span><span class="p">],</span>
+                 <span class="mi">7</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_360_MINI&#39;</span><span class="p">,</span> <span class="s1">&#39;Leica Mini 360 Prism&#39;</span><span class="p">],</span>
+                 <span class="mi">8</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_MINI_ZERO&#39;</span><span class="p">,</span> <span class="s1">&#39;Leica Mini Zero Prism&#39;</span><span class="p">],</span>
+                 <span class="mi">9</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_PRISM_USE&#39;</span><span class="p">,</span> <span class="s1">&#39;User Defined Prism&#39;</span><span class="p">],</span>
+                 <span class="mi">10</span> <span class="p">:[</span><span class="s1">&#39;BAP_PRISM_NDS_TAPE&#39;</span><span class="p">,</span><span class="s1">&#39;Leica HDS Target&#39;</span><span class="p">],</span>
+                 <span class="mi">11</span> <span class="p">:[</span><span class="s1">&#39;BAP_PRISM_GRZ121_ROUND&#39;</span><span class="p">,</span> <span class="s1">&#39;GRZ121 360 Prism for Machine Guidance&#39;</span><span class="p">],</span>
+                 <span class="mi">12</span> <span class="p">:[</span><span class="s1">&#39;BAP_PRISM_MA_MP3122&#39;</span><span class="p">,</span> <span class="s1">&#39;MPR122 360 Prism for Machine Guidance&#39;</span><span class="p">]</span> <span class="p">}</span>
+
+
+<div class="viewcode-block" id="BAP_GetPrismType"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_GetPrismType">[docs]</a><span class="k">def</span> <span class="nf">BAP_GetPrismType</span><span class="p">()</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p73**] &quot;&quot;&quot;</span>
+    <span class="n">parameter</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17009&#39;</span><span class="p">,[])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">parameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">BAP_PRISMTYPE</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Prism type: &#39;</span><span class="p">,</span> <span class="n">BAP_PRISMTYPE</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">parameter</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="BAP_SetPrismType"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_SetPrismType">[docs]</a><span class="k">def</span> <span class="nf">BAP_SetPrismType</span><span class="p">(</span><span class="n">ePrismType</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    [GeoCOM manual **p74**]</span>
+
+<span class="sd">    Sets the prism type for measurements with a reflector.</span>
+<span class="sd">    Check **p69** of GeoCOM manual for all prism types.</span>
+<span class="sd">    Prism types used with the main script:</span>
+
+<span class="sd">    * BAP_PRISM_360 (value=3) : Leica 360 Prism</span>
+<span class="sd">    * BAP_PRISM_360_MINI (value=7) : Leica Mini 360 Prism</span>
+
+<span class="sd">    :param PrismType: Constant associated to a prism type</span>
+<span class="sd">    :type PrismType: int</span>
+
+<span class="sd">    :returns: [error, RC, []]</span>
+
+<span class="sd">    * error=0 and RC=0 if the request is successful</span>
+<span class="sd">    * error=1 if not</span>
+
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17008&#39;</span><span class="p">,[</span><span class="n">ePrismType</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Prism type set&#39;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<div class="viewcode-block" id="BAP_SetMeasPrg"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_SetMeasPrg">[docs]</a><span class="k">def</span> <span class="nf">BAP_SetMeasPrg</span><span class="p">(</span><span class="n">eMeasPrg</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p81**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17019&#39;</span><span class="p">,[</span><span class="n">eMeasPrg</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Measurement program set&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+
+<span class="n">BAP_USER_MEASPRG</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_SINGLE_REF_STANDARD&#39;</span><span class="p">,</span><span class="s1">&#39;Reflector, Standard&#39;</span><span class="p">],</span>
+                    <span class="mi">1</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_SINGLE_REF_FAST&#39;</span><span class="p">,</span> <span class="s1">&#39;Reflector, Fast&#39;</span><span class="p">],</span>
+                    <span class="mi">2</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_SINGLE_REF_VISIBLE&#39;</span><span class="p">,</span> <span class="s1">&#39;Long Range, Standard&#39;</span><span class="p">],</span>
+                    <span class="mi">3</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_SINGLE_RLESS_VISIBLE&#39;</span><span class="p">,</span> <span class="s1">&#39;No Reflector, Standard&#39;</span><span class="p">],</span>
+                    <span class="mi">4</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_CONT_REF_STANDARD&#39;</span><span class="p">,</span> <span class="s1">&#39;Reflector, Tracking&#39;</span><span class="p">],</span>
+                    <span class="mi">5</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_CONT_REF_FAST&#39;</span><span class="p">,</span> <span class="s1">&#39;not available&#39;</span><span class="p">],</span>
+                    <span class="mi">6</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_CONT_RLESS_VISIBLE&#39;</span><span class="p">,</span> <span class="s1">&#39;No Reflector, Fast Tracking&#39;</span><span class="p">],</span>
+                    <span class="mi">7</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_AVG_REF_STANDARD&#39;</span><span class="p">,</span> <span class="s1">&#39;Reflector, Average&#39;</span><span class="p">],</span>
+                    <span class="mi">8</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_AVG_REF_VISIBLE&#39;</span><span class="p">,</span> <span class="s1">&#39;Long Range, Average&#39;</span><span class="p">],</span>
+                    <span class="mi">9</span> <span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BAP_AVG_RLESS_VISIBLE&#39;</span><span class="p">,</span> <span class="s1">&#39;No Reflector, Average&#39;</span><span class="p">],</span>
+                    <span class="mi">10</span> <span class="p">:[</span><span class="s1">&#39;BAP_CONT_REF_SYNCHRO&#39;</span><span class="p">,</span> <span class="s1">&#39;Reflector, Synchro Tracking&#39;</span><span class="p">],</span>
+                    <span class="mi">11</span> <span class="p">:[</span><span class="s1">&#39;BAP_SINGLE_REF_PRECISE&#39;</span><span class="p">,</span><span class="s1">&#39;not available&#39;</span><span class="p">]}</span>
+
+<div class="viewcode-block" id="BAP_MeasDistanceAngle"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_MeasDistanceAngle">[docs]</a><span class="k">def</span> <span class="nf">BAP_MeasDistanceAngle</span><span class="p">(</span><span class="n">mode</span> <span class="o">=</span> <span class="mi">6</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p82**] &quot;&quot;&quot;</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17017&#39;</span><span class="p">,[</span><span class="n">mode</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">if</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">)</span><span class="o">==</span><span class="mi">4</span><span class="p">)</span> <span class="p">:</span>
+
+        <span class="n">coord</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span><span class="nb">float</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">3</span><span class="p">])]</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Got data successfully: &#39;</span><span class="p">,</span> <span class="n">coord</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">coord</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="BAP_GetMeasPrg"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_GetMeasPrg">[docs]</a><span class="k">def</span> <span class="nf">BAP_GetMeasPrg</span><span class="p">()</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p80**] &quot;&quot;&quot;</span>
+
+    <span class="n">parameter</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17018&#39;</span><span class="p">,[])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">parameter</span> <span class="o">=</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">BAP_USER_MEASPRG</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Measurement program: &#39;</span><span class="p">,</span> <span class="n">BAP_USER_MEASPRG</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">[</span><span class="mi">0</span><span class="p">])][</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">parameter</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BAP_SearchTarget"><a class="viewcode-back" href="../GeoCom.html#GeoCom.BAP_SearchTarget">[docs]</a><span class="k">def</span> <span class="nf">BAP_SearchTarget</span><span class="p">(</span><span class="n">bDummy</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p84**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;17020&#39;</span><span class="p">,[</span><span class="n">bDummy</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Prism found!&#39;</span>
+
+    <span class="k">else</span> <span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span> <span class="o">==</span> <span class="mi">8710</span><span class="p">)</span> <span class="p">:</span>
+                <span class="k">print</span> <span class="s1">&#39;No prism found!&#39;</span>
+
+            <span class="k">elif</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span> <span class="o">==</span> <span class="mi">8711</span><span class="p">)</span> <span class="p">:</span>
+                <span class="k">print</span> <span class="s1">&#39;Multiple prism found!&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<span class="sd">&quot;&quot;&quot;#############################################################################</span>
+<span class="sd">############################## AUS - ALT User ##################################</span>
+<span class="sd">################################################################################</span>
+<span class="sd">The subsystem &quot;Alt User&quot; mainly contains functions behind the &quot;SHIFT&quot; + &quot;USER&quot;</span>
+<span class="sd">button.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="AUS_SetUserLockState"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUS_SetUserLockState">[docs]</a><span class="k">def</span> <span class="nf">AUS_SetUserLockState</span><span class="p">(</span><span class="n">on</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p42**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;18007&#39;</span><span class="p">,[</span><span class="n">on</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Lock activated or deactivated&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<div class="viewcode-block" id="AUS_SetUserAtrState"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUS_SetUserAtrState">[docs]</a><span class="k">def</span> <span class="nf">AUS_SetUserAtrState</span><span class="p">(</span><span class="n">on</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p40**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;18005&#39;</span><span class="p">,[</span><span class="n">on</span><span class="p">])</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;ATR activated or deactivated&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="p">[]]</span></div>
+
+<div class="viewcode-block" id="AUS_GetUserLockState"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUS_GetUserLockState">[docs]</a><span class="k">def</span> <span class="nf">AUS_GetUserLockState</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p41**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;18008&#39;</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;Lock activated or deactivated&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AUS_GetUserAtrState"><a class="viewcode-back" href="../GeoCom.html#GeoCom.AUS_GetUserAtrState">[docs]</a><span class="k">def</span> <span class="nf">AUS_GetUserAtrState</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; [GeoCOM manual **p39**] &quot;&quot;&quot;</span>
+
+    <span class="n">request</span> <span class="o">=</span> <span class="n">CreateRequest</span><span class="p">(</span><span class="s1">&#39;18006&#39;</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">SerialRequest</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> <span class="p">:</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Debug_Level</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span> <span class="p">:</span>
+            <span class="k">print</span> <span class="s1">&#39;ATR activated or deactivated&#39;</span>
+
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">error</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">RC</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">parameters</span><span class="p">]</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Nicolas Sorensen and Rémy Vermeiren.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,716 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GeoCOM &mdash; Leica-GeoCOM-for-drone-tracking 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Leica-GeoCOM-for-drone-tracking 1.0 documentation" href="index.html" />
+    <link rel="prev" title="Main script" href="alx_track.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="geocom">
+<h1>GeoCOM<a class="headerlink" href="#geocom" title="Permalink to this headline">¶</a></h1>
+<p>All functions specified here are specified as in the TPS1200 GeoCOM reference manual, <strong>V1.20</strong>.
+Not all of them are specified: the ones used in the main script are described in details, while the others simply redirect to the page of the reference manual where they are described.</p>
+<p>Not all functions available in GeoCOM are implemented in this script.</p>
+<p>In the specification of some GeoCOM functions, not all RC codes possibly returned by the function are given and described.
+You can easily check them in the GeoCOM reference manual.</p>
+<div class="section" id="module-GeoCom">
+<span id="classes"></span><h2>Classes<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="class">
+<dt id="GeoCom.ResponseClass">
+<em class="property">class </em><code class="descclassname">GeoCom.</code><code class="descname">ResponseClass</code><a class="reference internal" href="_modules/GeoCom.html#ResponseClass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.ResponseClass" title="Permalink to this definition">¶</a></dt>
+<dd><p>ResponseClass destinate to manage the response get from the station and the
+error code return</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Attribute RC_COM:</th></tr>
+<tr class="field-odd field"><td>&nbsp;</td><td class="field-body">Communication return code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attribute TrId:</th><td class="field-body">Transaction id</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Attribute RC:</th><td class="field-body">return code</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Attribute parameters:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">List of returns parameters</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="GeoCom.ResponseClass.setResponse">
+<code class="descname">setResponse</code><span class="sig-paren">(</span><em>response</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#ResponseClass.setResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.ResponseClass.setResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instanciate a ResponseClass from a ASCII response
+:params response: ASCII response get from the station</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.CreateRequest">
+<code class="descclassname">GeoCom.</code><code class="descname">CreateRequest</code><span class="sig-paren">(</span><em>cmd</em>, <em>args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#CreateRequest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.CreateRequest" title="Permalink to this definition">¶</a></dt>
+<dd><p>[&lt;LF&gt;]%R1Q,&lt;RPC&gt;[,&lt;TrId&gt;]:[&lt;P0&gt;][,&lt;P1&gt;,...]&lt;Term&gt;</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="GeoCom.SerialRequestError">
+<em class="property">exception </em><code class="descclassname">GeoCom.</code><code class="descname">SerialRequestError</code><a class="reference internal" href="_modules/GeoCom.html#SerialRequestError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.SerialRequestError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="com-communication"></span><h2>COM &#8211; Communication<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.COM_CloseConnection">
+<code class="descclassname">GeoCom.</code><code class="descname">COM_CloseConnection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#COM_CloseConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.COM_CloseConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p27</strong>]</p>
+<p>Close the (current) open port and releases an established connection.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[error, RC, []]. error=0 and RC=0 if the request is successful.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.COM_OpenConnection">
+<code class="descclassname">GeoCom.</code><code class="descname">COM_OpenConnection</code><span class="sig-paren">(</span><em>ePort</em>, <em>eRate</em>, <em>nRetries=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#COM_OpenConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.COM_OpenConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p26</strong>]</p>
+<p>Open a PC serial port and attempts to detect a theodolite based on the given baud rate.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ePort</strong> (<em>str</em>) &#8211; serial port</li>
+<li><strong>eRate</strong> (<em>int</em>) &#8211; baud rate</li>
+<li><strong>nRetries</strong> (<em>int</em>) &#8211; number of retries to initiate a connection</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[error, RC, []]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the connection attempt was successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.COM_SwitchOnTPS">
+<code class="descclassname">GeoCom.</code><code class="descname">COM_SwitchOnTPS</code><span class="sig-paren">(</span><em>eOnMode=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#COM_SwitchOnTPS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.COM_SwitchOnTPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p96</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.COM_SwitchOffTPS">
+<code class="descclassname">GeoCom.</code><code class="descname">COM_SwitchOffTPS</code><span class="sig-paren">(</span><em>eOffMode=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#COM_SwitchOffTPS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.COM_SwitchOffTPS" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p97</strong>]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="aut-automation"></span><h2>AUT &#8211; Automation<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.AUT_MakePositioning">
+<code class="descclassname">GeoCom.</code><code class="descname">AUT_MakePositioning</code><span class="sig-paren">(</span><em>Hz</em>, <em>V</em>, <em>POSMode=0</em>, <em>ATRMode=0</em>, <em>bDummy=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUT_MakePositioning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUT_MakePositioning" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p49</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.AUT_Search">
+<code class="descclassname">GeoCom.</code><code class="descname">AUT_Search</code><span class="sig-paren">(</span><em>Hz_Area</em>, <em>V_Area</em>, <em>bDummy=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUT_Search"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUT_Search" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p56</strong>]</p>
+<p>Performs an automatic target search within a given area.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parem Hz:</th><td class="field-body"><p class="first">horizontal search region [rad]</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>V</strong> (<em>int</em>) &#8211; vertical search region [rad]</li>
+<li><strong>bDummy</strong> (<em>int</em>) &#8211; reserved for future use, always set to false (quick reminder: <em>0</em> in GeoCOM is considered false)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[error, RC, []]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the search is successful</li>
+<li>error=1 and RC=8710 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.AUT_FineAdjust">
+<code class="descclassname">GeoCom.</code><code class="descname">AUT_FineAdjust</code><span class="sig-paren">(</span><em>dSrchHz=0.1</em>, <em>dSrchV=0.1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUT_FineAdjust"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUT_FineAdjust" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p54</strong>]</p>
+<p>Precisely positions the telescope crosshairs onto the target prism.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dSrchHz</strong> (<em>float</em>) &#8211; Search range Hz-axis [rad]</li>
+<li><strong>dSrchV</strong> (<em>float</em>) &#8211; Search range V-axis [rad]</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[error, RC, []]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the request is successful</li>
+<li>error=1 otherwise</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.AUT_LockIn">
+<code class="descclassname">GeoCom.</code><code class="descname">AUT_LockIn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUT_LockIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUT_LockIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p60</strong>]</p>
+<p>If LOCK mode is activated (AUS_SetUserLockState), then the function starts the target tracking.
+The command is only possible if a AUT_FineAdjust command has been previously sent and
+successfully executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[error, RC, []]</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the lock is successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="csv-central-services"></span><h2>CSV &#8211; Central services<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.CSV_GetDateTime">
+<code class="descclassname">GeoCom.</code><code class="descname">CSV_GetDateTime</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#CSV_GetDateTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.CSV_GetDateTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p107</strong>]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="edm-electronic-distance-measurement"></span><h2>EDM &#8211; Electronic Distance Measurement<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.EDM_Laserpointer">
+<code class="descclassname">GeoCom.</code><code class="descname">EDM_Laserpointer</code><span class="sig-paren">(</span><em>eOn=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#EDM_Laserpointer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.EDM_Laserpointer" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p114</strong>]</p>
+<p>Turns on/off the laser pointer of the total station.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>eOn</strong> (<em>int</em>) &#8211; On (<em>1</em>) or Off (<em>0</em>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[error, RC, []]</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the request is successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="tmc-theodolite-measurement-and-calculation"></span><h2>TMC &#8211; Theodolite Measurement and Calculation<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.TMC_SetOrientation">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_SetOrientation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_SetOrientation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_SetOrientation" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p148</strong>]</p>
+<p>Orientate the instrument in Hz direction. It is a combination of an angle measurement to
+get the Hz offset and afterwards setting the angle Hz offset in order to orientate onto a target.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[error, RC, []]</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the request is successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_DoMeasure">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_DoMeasure</code><span class="sig-paren">(</span><em>cmd=1</em>, <em>mode=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_DoMeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_DoMeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p141</strong>]</p>
+<p>Carries out a distance measurement. Please note that this command does not output any values (distances).
+In order to get the values you have to use other measurement functions such as TMC_GetCoordinate , TMC_GetSimpleMea or TMC_GetAngle .</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cmd</strong> (<em>int</em>) &#8211; TMC measurement mode (see <strong>p127</strong> of GeoCOM ref manual)</li>
+<li><strong>mode</strong> (<em>int</em>) &#8211; Inclination sensor measurement mode</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[error, RC, []]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the request is successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_SetEdmMode">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_SetEdmMode</code><span class="sig-paren">(</span><em>mode=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_SetEdmMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_SetEdmMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p167</strong>]</p>
+<p>Set the current measurement mode.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mode</strong> (<em>int</em>) &#8211; measurement mode</td>
+</tr>
+</tbody>
+</table>
+<p>Measurement modes available (check <strong>p127</strong>-<strong>128</strong> for further information) :</p>
+<p>Format : <em>&lt;int value&gt;</em>. <em>&lt;enum constant name&gt;</em> : <em>&lt;description&gt;</em></p>
+<ol class="arabic simple" start="0">
+<li>EDM_MODE_NOT_USED : Init value</li>
+<li>EDM_SINGLE_TAPE : IR Standard Reflector Tape</li>
+<li>EDM_SINGLE_STANDARD : IR Standard</li>
+<li>EDM_SINGLE_FAST : IR Fast</li>
+<li>EDM_SINGLE_LRANGE : LO Standard</li>
+<li>EDM_SINGLE_SRANGE : RL Standard</li>
+<li>EDM_CONT_STANDARD : Standard repeated measurement</li>
+<li>EDM_CONT_DYNAMIC : IR Tacking</li>
+<li>EDM_CONT_REFLESS : RL Tracking</li>
+<li>EDM_CONT_FAST : Fast repeated measurement</li>
+<li>EDM_AVERAGE_IR : IR Average</li>
+<li>EDM_AVERAGE_SR : RL Average</li>
+<li>EDM_AVERAGE_LR : LO Average</li>
+<li>EDM_PRECISE_IR : IR Precise (TS30, TM30)</li>
+<li>EDM_PRECISE_TAPE : IR Precise Reflector Tape (TS30, TM30)</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[error, RC, []]</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the request is successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_GetCoordinate">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_GetCoordinate</code><span class="sig-paren">(</span><em>WaitTime=100</em>, <em>mode=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_GetCoordinate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_GetCoordinate" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p130</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_GetStation">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_GetStation</code><span class="sig-paren">(</span><em>WaitTime=100</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_GetStation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_GetStation" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p155</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_GetSimpleMea">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_GetSimpleMea</code><span class="sig-paren">(</span><em>WaitTime=100</em>, <em>mode=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_GetSimpleMea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_GetSimpleMea" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p132</strong>]</p>
+<p>Returns the angles and distance measurement data. This command does not issue a new distance measurement.
+A distance measurement has to be started in advance (call TMC_DoMeasure before this function).
+If no valid distance measurement is available and the distance measurement unit is not activated
+(by TMC_DoMeasure before the TMC_GetSimpleMea call) the angle measurement result is returned
+after the <strong>WaitTime</strong>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>WaitTime</strong> (<em>int</em>) &#8211; Delay to wait for the distance measurement to finish [ms]</li>
+<li><strong>mode</strong> (<em>int</em>) &#8211; Inclination sensor measurement mode</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">[error, RC, []]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p class="first">error=0 and RC=0 if the request is successful</p>
+</li>
+<li><dl class="first docutils">
+<dt>error=1 if not. In this case RC can be equal to:</dt>
+<dd><ul class="first last simple">
+<li>1284 : Accuracy of the measurement could not be verified by the system of the total station</li>
+<li>1285 : Only the angles of the station could be obtained (no distance measurement available)</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_QuickDist">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_QuickDist</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_QuickDist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_QuickDist" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p138</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_GetAngle">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_GetAngle</code><span class="sig-paren">(</span><em>mode=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_GetAngle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_GetAngle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refer to <em>TMC_GetAngle5</em> in GeoCOM manual <strong>p136</strong></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.TMC_GetEdmMode">
+<code class="descclassname">GeoCom.</code><code class="descname">TMC_GetEdmMode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#TMC_GetEdmMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.TMC_GetEdmMode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="mot-motorization"></span><h2>MOT &#8211; Motorization<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.MOT_StartController">
+<code class="descclassname">GeoCom.</code><code class="descname">MOT_StartController</code><span class="sig-paren">(</span><em>ControlMode=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#MOT_StartController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.MOT_StartController" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p119</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.MOT_StopController">
+<code class="descclassname">GeoCom.</code><code class="descname">MOT_StopController</code><span class="sig-paren">(</span><em>Mode=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#MOT_StopController"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.MOT_StopController" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p120</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.MOT_SetVelocity">
+<code class="descclassname">GeoCom.</code><code class="descname">MOT_SetVelocity</code><span class="sig-paren">(</span><em>Hz_speed</em>, <em>v_speed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#MOT_SetVelocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.MOT_SetVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p121</strong>]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="bap-basic-applications"></span><h2>BAP &#8211; Basic Applications<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.BAP_GetTargetType">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_GetTargetType</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_GetTargetType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_GetTargetType" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p71</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_SetTargetType">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_SetTargetType</code><span class="sig-paren">(</span><em>eTargetType=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_SetTargetType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_SetTargetType" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p72</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_SetPrismType">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_SetPrismType</code><span class="sig-paren">(</span><em>ePrismType</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_SetPrismType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_SetPrismType" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p74</strong>]</p>
+<p>Sets the prism type for measurements with a reflector.
+Check <strong>p69</strong> of GeoCOM manual for all prism types.
+Prism types used with the main script:</p>
+<ul class="simple">
+<li>BAP_PRISM_360 (value=3) : Leica 360 Prism</li>
+<li>BAP_PRISM_360_MINI (value=7) : Leica Mini 360 Prism</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>PrismType</strong> (<em>int</em>) &#8211; Constant associated to a prism type</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">[error, RC, []]</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>error=0 and RC=0 if the request is successful</li>
+<li>error=1 if not</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_GetPrismType">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_GetPrismType</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_GetPrismType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_GetPrismType" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p73</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_SetMeasPrg">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_SetMeasPrg</code><span class="sig-paren">(</span><em>eMeasPrg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_SetMeasPrg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_SetMeasPrg" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p81</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_MeasDistanceAngle">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_MeasDistanceAngle</code><span class="sig-paren">(</span><em>mode=6</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_MeasDistanceAngle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_MeasDistanceAngle" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p82</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_GetMeasPrg">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_GetMeasPrg</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_GetMeasPrg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_GetMeasPrg" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p80</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.BAP_SearchTarget">
+<code class="descclassname">GeoCom.</code><code class="descname">BAP_SearchTarget</code><span class="sig-paren">(</span><em>bDummy=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#BAP_SearchTarget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.BAP_SearchTarget" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p84</strong>]</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-GeoCom">
+<span id="aus-alt-user"></span><h2>AUS &#8211; ALT User<a class="headerlink" href="#module-GeoCom" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-GeoCom"></span><dl class="function">
+<dt id="GeoCom.AUS_SetUserLockState">
+<code class="descclassname">GeoCom.</code><code class="descname">AUS_SetUserLockState</code><span class="sig-paren">(</span><em>on=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUS_SetUserLockState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUS_SetUserLockState" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p42</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.AUS_SetUserAtrState">
+<code class="descclassname">GeoCom.</code><code class="descname">AUS_SetUserAtrState</code><span class="sig-paren">(</span><em>on=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUS_SetUserAtrState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUS_SetUserAtrState" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p40</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.AUS_GetUserLockState">
+<code class="descclassname">GeoCom.</code><code class="descname">AUS_GetUserLockState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUS_GetUserLockState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUS_GetUserLockState" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p41</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GeoCom.AUS_GetUserAtrState">
+<code class="descclassname">GeoCom.</code><code class="descname">AUS_GetUserAtrState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUS_GetUserAtrState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#GeoCom.AUS_GetUserAtrState" title="Permalink to this definition">¶</a></dt>
+<dd><p>[GeoCOM manual <strong>p39</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">GeoCom.</code><code class="descname">AUS_GetUserLockState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUS_GetUserLockState"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>[GeoCOM manual <strong>p41</strong>]</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="descclassname">GeoCom.</code><code class="descname">AUS_GetUserAtrState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/GeoCom.html#AUS_GetUserAtrState"><span class="viewcode-link">[source]</span></a></dt>
+<dd><p>[GeoCOM manual <strong>p39</strong>]</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">GeoCOM</a><ul>
+<li><a class="reference internal" href="#module-GeoCom">Classes</a></li>
+<li><a class="reference internal" href="#module-GeoCom">COM &#8211; Communication</a></li>
+<li><a class="reference internal" href="#module-GeoCom">AUT &#8211; Automation</a></li>
+<li><a class="reference internal" href="#module-GeoCom">CSV &#8211; Central services</a></li>
+<li><a class="reference internal" href="#module-GeoCom">EDM &#8211; Electronic Distance Measurement</a></li>
+<li><a class="reference internal" href="#module-GeoCom">TMC &#8211; Theodolite Measurement and Calculation</a></li>
+<li><a class="reference internal" href="#module-GeoCom">MOT &#8211; Motorization</a></li>
+<li><a class="reference internal" href="#module-GeoCom">BAP &#8211; Basic Applications</a></li>
+<li><a class="reference internal" href="#module-GeoCom">AUS &#8211; ALT User</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="alx_track.html" title="previous chapter">Main script</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/GeoCom.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Nicolas Sorensen and Rémy Vermeiren.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/GeoCom.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

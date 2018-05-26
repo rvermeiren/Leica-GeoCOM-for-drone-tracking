@@ -23,8 +23,8 @@ Based on the work of [Maxim Artyom](https://github.com/art-mx/leica_ros_sph) and
 ### Documentation
 
 The documentation generation is automated using [Sphinx](http://www.sphinx-doc.org/en/master/).
-The scripts generating the documentation for ```alx_track.py``` and ```GeoCom.py``` are available in the folder ```scripts\source```.  
-To generate it on a Windows system : see ```scripts\make.bat```.  
+The scripts generating the documentation for ```alx_track.py``` and ```GeoCom.py``` are available in the folder ```scripts\documentation```.  
+To generate it on a Windows system : see ```scripts\documentation\make.bat```.  
 To generate it on a Unix system:
 
 * Open a terminal
@@ -32,7 +32,9 @@ To generate it on a Unix system:
 * Type ```make html``` to generate it in HTML
 * Type ```make latexpdf``` to generate a PDF
 
-Further information is available in ```scripts\Makefile```.
+Further information is available in ```scripts\documentation\Makefile```.
+
+To change the directory of the source files of the project where Sphinx looks up for comments (in this case the directory of ```alx_track.py```and ```GeoCom.py```), go in ```scripts\documentation\conf.py``` and set ```sys.path``` to the directory of your choice.
 
 ## Installation
 ### Requirements
