@@ -49,17 +49,40 @@ class ResponseClass:
 
 class SerialRequestError(Exception):
     """
+    Instanciate a SerialRequestError from an Exception
+    :params Exception: An exception occurred during a request
     """
     def __init__(self, value):
+        """
+        Init the Error
+        :params value: the message from the exception
+        """
         self.value = value
     def __str__(self):
+        """
+        Print the message from the error
+        """
         return repr(self.value)
 
 def getTrId(request):
+    """
+    Get transaction id from a ASCII request by parsing it
+    :params request: a ASCII resquest
+    """
     words = request.replace('\'','').strip().split(',')[2].split(':')
     return int(words[0])
 
 def SerialRequest(request, length = 0, t_timeout = 3): #default 3
+    """
+    Send a request to the server (total station)
+    :params request: a ASCII request
+    :params length: to remove later, not needed
+    :params t_timeout: default is 3 seconds, could be higher or lower
+
+    :return response: response class
+
+    :exception SerialRequestError: thrown if an error occurs during the communication
+    """
     if(Debug_Level==2) :
         print 'request = ', request
     id = getTrId(request)
@@ -68,16 +91,12 @@ def SerialRequest(request, length = 0, t_timeout = 3): #default 3
 
     try : # try method for the case that TS is not connected
         ser.read(ser.inWaiting())
-
-
         ser.write(request + '\r\n')
-
         t_start = time.time()
         # do as long as:
         # 1: buffer has specific length
         # 2: if specific length not defined (=0), then until buffer > 0
         # 3: timeout not reached
-
         while((ser.inWaiting()<length or (length == 0 and ser.inWaiting()==0)) and time.time()-t_start<t_timeout) :
             time.sleep(0.001)
 
@@ -86,33 +105,38 @@ def SerialRequest(request, length = 0, t_timeout = 3): #default 3
             return response
 
         time.sleep(0.025)    # Short break to make sure serial port is not read while stuff is written
-
         serial_output = ser.read(ser.inWaiting())
         response.setResponse(serial_output)
         if response.TrId != id :
             response.RC = 3077
             return response
-
-        #if(Debug_Level==2) :
-            #print 'serial_output: ',serial_output
-
     except KeyboardInterrupt as e :
         raise KeyboardInterrupt(e)
     except :
         raise SerialRequestError("Leica TS communication error - not connected?")
         response.RC = 1
-
     return response
 
 def HexToDec(hex_in):
-
+    """
+    Convert hexadecimal number into decimal number
+    :params hex_in: hexadecimal number to Convert
+    :return decimal representation of hex_in
+    """
     dec_out = int(hex_in, 16)
-
     return dec_out
 
 
 def CreateRequest(cmd, args=None):
-    """[<LF>]%R1Q,<RPC>[,<TrId>]:[<P0>][,<P1>,...]<Term> """
+    """
+    Create a ASCII Request based on a command id and, if present, arguments
+
+    :params cmd: function code to send to the Station
+    :params args: table of arguments
+
+    :return an ASCII request with this form
+        [<LF>]%R1Q,<RPC>[,<TrId>]:[<P0>][,<P1>,...]<Term>
+    """
     global GTrId
     #\n is LF flag to flush buffer
     request = '\n%R1Q,'
@@ -128,7 +152,6 @@ def CreateRequest(cmd, args=None):
             for i in range(0,len(args)) :
                 request = request + str(args[i])
                 request = request + ','
-
             request = request + str(args[-1])
         return request
 
