@@ -257,27 +257,6 @@ def COM_SwitchOffTPS(eOffMode=0) :
 
     return [error,response.RC,[]]
 
-def COM_GetSWVersion() :
-    """ [GeoCOM manual **p95**] """
-
-    request = CreateRequest('110',[])
-
-    response = SerialRequest(request,0,60)
-
-    if(response.RC==0) :
-        error = 0
-        if(Debug_Level==1) :
-            print 'Shut down TPS'
-
-    else :
-        error = 1
-        if(Debug_Level==1) :
-            print 'Error shutting down TPS'
-
-    print response.parameters
-
-    return [error,response.RC,[]]
-
 """#############################################################################
 ########################## CSV - CENTRAL SERVICES ##############################
 ################################################################################
@@ -346,6 +325,8 @@ def AUT_MakePositioning(Hz, V, POSMode=0, ATRMode=0, bDummy=0):
 
     return [error, response.RC, []]
 
+# powersearch
+# TODO
 
 
 def AUT_Search(Hz_Area, V_Area, bDummy = 0):

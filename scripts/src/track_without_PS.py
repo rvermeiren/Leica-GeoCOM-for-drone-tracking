@@ -102,7 +102,7 @@ def connection(options):
 
 def set_x_axis():
     """
-    Set the orientation of the carthesian plan by fixing **x** axis. 
+    Set the orientation of the carthesian plan by fixing **x** axis.
     """
     [error, RC, args] = GeoCom.TMC_SetOrientation()
     print("Carthesian coordinates system set, station is 000 and laser directed on x axis")
@@ -203,7 +203,7 @@ def get_measure():
     * "2" if only the angles could be measured (RC=1285 or RC=1288)
     * "3" if another error occured or if a non-numeric value was received
     * "4" if a GeoCom.SerialRequestError occured
-    
+
     :rtype: str
     """
     global OLD_COORD, FAIL_COUNT

@@ -46,7 +46,7 @@ To change the directory of the source files of the project where Sphinx looks up
 * pip package manager for Python 2.7 (normally already included in Python installation)
 * [pyserial](https://pypi.python.org/pypi/pyserial/2.7)
     *  Install with ```C\:Python27\python.exe -m pip install pyserial ``` in the command line
-* USB cable drivers for GEV267,GEV268,GEV269 V3.0 available on Leica MyWorld website
+* USB cable drivers for GEV267,GEV268,GEV269 V3.0 available on Leica MyWorld website or on the "/util/" folder of this repository
     * Install the driver :
         * Download the driver and extract it
         * Plug-in the cable on the Windows computer

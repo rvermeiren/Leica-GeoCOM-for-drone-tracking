@@ -35,7 +35,7 @@ namespace Wrapper
         public void Open(string port, string baudrate)
         {
             ipy = Python.CreateRuntime();
-            script = ipy.UseFile("src/alx_track.py");
+            script = ipy.UseFile("src/track.py");
             script.open(port, baudrate);
 
             isContinue = true;
