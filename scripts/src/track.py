@@ -189,9 +189,10 @@ def setup_station_manual(options):
     set_prism_type(options.big_prism)
     raw_input('Direct the station to the prism and press <enter>')
     set_laser(0)
-    while not powerSearchPrism():
-        print("search again")
-        time.sleep(0.1)
+    if not powerSearchPrism():
+        while not powerSearchPrism(0.0, 1.57, 6.28, 2):
+            print("search again")
+            time.sleep(0.1)
 
     GeoCom.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
     GeoCom.TMC_DoMeasure()
@@ -205,10 +206,10 @@ def setup_station(options):
     set_x_axis()
     set_prism_type(options.big_prism)
     set_laser(0)
-    while not powerSearchPrism():
-        print("search again")
-        time.sleep(2)
-    time.sleep(1)
+    if not powerSearchPrism():
+        while not powerSearchPrism(0.0, 1.57, 6.28, 2):
+            print("search again")
+            time.sleep(0.1)
 
     GeoCom.TMC_SetEdmMode(9) #EDM_CONT_FAST = 9, // Fast repeated measurement (geocom manual p.91)
     GeoCom.TMC_DoMeasure()
@@ -257,7 +258,7 @@ def get_measure():
     global OLD_COORD, FAIL_COUNT
     if FAIL_COUNT > 100:
         if not powerSearchPrism(float(OLD_COORD[0]),float(OLD_COORD[1])):
-            while not powerSearchPrism(float(OLD_COORD[0]),float(OLD_COORD[1]), 3.14, 3.14):
+            while not powerSearchPrism(float(OLD_COORD[0]),float(OLD_COORD[1]), 6.28, 2):
                 print("search again")
                 time.sleep(2)
         FAIL_COUNT = 0
