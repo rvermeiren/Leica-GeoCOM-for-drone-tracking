@@ -4,3 +4,4 @@ bin
 *.pyc
 *.dox
 *~
+util\USB*
