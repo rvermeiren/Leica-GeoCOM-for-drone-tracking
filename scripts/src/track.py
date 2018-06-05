@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-.. module:: alx_track
+.. module:: track
 
 """
 
@@ -24,13 +24,29 @@ FAIL_COUNT=0
 DEBUG=False
 
 def powerSearchPrism(cHz = 0, cV=1.57, aHz = 1.0 , aV = 1.0):
+    """
+    Performs a PowerSearch, starting from the angular position (cHz, cV) and
+    searching in the given window (aHz, aV).
+
+    :param cHz: starting horizontal angular position
+    :type cHz: float
+    :param cV: starting vertical angular position
+    :type cV: float
+    :param aHz: horizontal search window
+    :type aHz: float
+    :param aV: vertical search window
+    :type aV: float
+    :returns: True if the prism is locked, False otherwise
+    :rtype: bool
+
+    """
     print cHz, cV, aHz, aV
     print("powerSearchPrism")
-    a = GeoCom.AUT_SetSearchArea(cHz, cV, aHz , aV, 1)
+    a = GeoCom.AUT_SetSearchArea(cHz, cV, aHz , aV, 1) # Set PowerSearch parameters
     print a
-    b = GeoCom.AUT_PS_SetRange(5,100)
-    c = GeoCom.AUT_PS_EnableRange(1)
-    if GeoCom.AUT_PS_SearchWindow()[1] == 0:
+    b = GeoCom.AUT_PS_SetRange(5,100) # Set range of the PowerSearch in the interval [5,100] meters
+    c = GeoCom.AUT_PS_EnableRange(1) # Activate the range restriction
+    if GeoCom.AUT_PS_SearchWindow()[1] == 0: # Launch PowerSearch
         [error, RC, parameters] = GeoCom.AUT_FineAdjust(math.radians(20),math.radians(20))
         if RC != 0:
             os.system('color 0F')

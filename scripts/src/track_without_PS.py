@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-.. module:: alx_track
+.. module:: track_without_ps
 
 """
 

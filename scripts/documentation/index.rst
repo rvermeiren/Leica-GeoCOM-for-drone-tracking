@@ -10,12 +10,12 @@ The GitHub repository of the whole project is publicly available here_.
 
 .. _here : https://github.com/rvermeiren/Leica-GeoCOM-for-drone-tracking
 
-This documentation gathers information that can be found in the comments of the Python scripts alx_track.py_ and GeoCom.py_.
+This documentation gathers information that can be found in the comments of the Python scripts track.py_ and GeoCom.py_.
 
-.. _alx_track.py : https://github.com/rvermeiren/Leica-GeoCOM-for-drone-tracking/blob/master/scripts/src/alx_track.py
+.. _track.py : https://github.com/rvermeiren/Leica-GeoCOM-for-drone-tracking/blob/master/scripts/src/track.py
 .. _GeoCom.py : https://github.com/rvermeiren/Leica-GeoCOM-for-drone-tracking/blob/master/scripts/src/GeoCom.py
 
-The Main script is alx_track.py_. It interacts with the total station to request measurements and displays them
+The Main script is track.py_. It interacts with the total station to request measurements and displays them
 on the standard output.
 
 GeoCOM functions are all functions from Leica's GeoCOM protocol that are implemented in the file GeoCom.py_.
@@ -23,7 +23,7 @@ GeoCOM functions are all functions from Leica's GeoCOM protocol that are impleme
 .. toctree::
    :maxdepth: 2
 
-   alx_track
+   track
    GeoCom
 
 

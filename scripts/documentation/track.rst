@@ -1,5 +1,5 @@
 Main script
 **************************
 
-.. automodule:: alx_track
+.. automodule:: track
 	:members:

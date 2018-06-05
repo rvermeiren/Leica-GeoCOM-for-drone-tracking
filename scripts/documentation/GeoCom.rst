@@ -23,7 +23,7 @@ Classes
 COM -- Communication
 ---------------------
 .. automodule:: GeoCom
-	:members: COM_CloseConnection, COM_OpenConnection, COM_SwitchOnTPS, COM_SwitchOffTPS
+	:members: COM_CloseConnection, COM_OpenConnection, COM_SwitchOnTPS, COM_SwitchOffTPS, COM_GetSWVersion
 
 AUT -- Automation
 ------------------
