@@ -28,7 +28,7 @@ COM -- Communication
 AUT -- Automation
 ------------------
 .. automodule:: GeoCom
-	:members: AUT_MakePositioning, AUT_Search, AUT_FineAdjust, AUT_LockIn
+	:members: AUT_MakePositioning, AUT_Search, AUT_FineAdjust, AUT_LockIn, AUT_GetSearchArea, AUT_SetSearchArea, AUT_PS_EnableRange, AUT_PS_SetRange, AUT_PS_SearchWindow
 
 CSV -- Central services
 ------------------------
