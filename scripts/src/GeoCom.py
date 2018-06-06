@@ -14,13 +14,13 @@ GTrId = 0;
 
 class ResponseClass:
     """
-    ResponseClass destinate to manage the response get from the station and the
-    error code return
+    Manage the response from the station (transaction ID and parameters returned) and the
+    error codes returned.
 
-    :attribute RC_COM: Communication return code
-    :attribute TrId: Transaction id
-    :attribute RC: return code
-    :attribute parameters: List of returns parameters
+    :attribute RC_COM: communication return code
+    :attribute TrId: transaction id
+    :attribute RC: request return code
+    :attribute parameters: list of returned parameters
     """
 
     RC_COM = 0
@@ -30,8 +30,10 @@ class ResponseClass:
 
     def setResponse(self, response):
         """
-        Instanciate a ResponseClass from a ASCII response
-        :params response: ASCII response get from the station
+        Instantiate a ResponseClass from an ASCII response.
+
+        :param response: ASCII response from the station
+        :type response: ResponseClass
         """
         if(Debug_Level==2) :
             print 'response = ',response
@@ -49,37 +51,47 @@ class ResponseClass:
 
 class SerialRequestError(Exception):
     """
-    Instanciate a SerialRequestError from an Exception
-    :params Exception: An exception occurred during a request
+    Instantiate a SerialRequestError from an Exception.
+
+    :param Exception: An exception occurred during a request
+    :type Exception: Exception
     """
     def __init__(self, value):
         """
         Init the Error
-        :params value: the message from the exception
+
+        :param value: the message from the exception
+        :type value: str
         """
         self.value = value
     def __str__(self):
         """
-        Print the message from the error
+        Return the message from the error as a string (str)
         """
         return repr(self.value)
 
 def getTrId(request):
     """
-    Get transaction id from a ASCII request by parsing it
-    :params request: a ASCII resquest
+    Get transaction ID from an ASCII request by parsing it.
+
+    :param request: an ASCII resquest
+    :type request: str
+    :returns: parsed transaction ID
+    :rtype: int
     """
     words = request.replace('\'','').strip().split(',')[2].split(':')
     return int(words[0])
 
-def SerialRequest(request, length = 0, t_timeout = 3): #default 3
+def SerialRequest(request, length = 0, t_timeout = 3):
     """
-    Send a request to the server (total station)
-    :params request: a ASCII request
-    :params length: to remove later, not needed
-    :params t_timeout: default is 3 seconds, could be higher or lower
+    Send a request to the server (total station).
 
-    :return response: response class
+    :param request: an ASCII request
+    :param length: to remove later, not needed
+    :param t_timeout: default is 3 seconds, could be higher or lower
+
+    :returns: the corresponding response
+    :rtype: ResponseClass
 
     :exception SerialRequestError: thrown if an error occurs during the communication
     """
@@ -119,9 +131,12 @@ def SerialRequest(request, length = 0, t_timeout = 3): #default 3
 
 def HexToDec(hex_in):
     """
-    Convert hexadecimal number into decimal number
-    :params hex_in: hexadecimal number to Convert
-    :return decimal representation of hex_in
+    Convert an hexadecimal number into a decimal number.
+
+    :param hex_in: hexadecimal number to convert
+    :type hex_in: int
+    :returns: decimal representation of hex_in
+    :rtype: int
     """
     dec_out = int(hex_in, 16)
     return dec_out
@@ -129,13 +144,14 @@ def HexToDec(hex_in):
 
 def CreateRequest(cmd, args=None):
     """
-    Create a ASCII Request based on a command id and, if present, arguments
+    Create an ASCII Request based on a command code and, if needed, corresponding arguments.
 
-    :params cmd: function code to send to the Station
-    :params args: table of arguments
+    :param cmd: function code to send to the Station
+    :param args: list of arguments
 
-    :return an ASCII request with this form
-        [<LF>]%R1Q,<RPC>[,<TrId>]:[<P0>][,<P1>,...]<Term>
+    :returns: an ASCII request with this form
+        [<LF>]%R1Q,cmd,<TrId>:[args]<Term>
+    :rtype: str
     """
     global GTrId
     #\n is LF flag to flush buffer
@@ -289,14 +305,11 @@ def COM_GetSWVersion() :
 
     if(response.RC==0) :
         error = 0
-        if(Debug_Level==1) :
-            print 'Shut down TPS'
 
     else :
         error = 1
-        if(Debug_Level==1) :
-            print 'Error shutting down TPS'
 
+    # Print a list [Software release, Software version, Software subversion]
     print response.parameters
 
     return [error,response.RC,[]]
@@ -501,7 +514,19 @@ def AUT_SetSearchArea(dCenterHz, dCenterV, dRangeHz, dRangeV, bEnabled=1):
     """
     [GeoCom **p62**]
 
-    Define the position and dimensions and activates the PowerSearch window.
+    Define the starting position of the search and its search area,
+    then activates these PowerSearch parameters if bEnabled=1.
+
+    :param dCenterHz: starting horizontal angular position
+    :type dCenterHz: float
+    :param dCenterV: starting vertical angular position
+    :type dCenterV: float
+    :param dRangeHz: horizontal search window
+    :type dRangeHz: float
+    :param dRangeV: vertical search window
+    :type dRangeV: float
+    :param bEnabled: activate (=1) or deactivate(=0) the parameters set for PowerSearch.
+    :type bEnabled: int
 
     :returns: [error, RC, parameters]
 
@@ -551,6 +576,11 @@ def AUT_PS_SetRange(lMinDist, lMaxDist):
 
     Define the PowerSearch range limits.
 
+    :param lMinDist: range lower bound
+    :type lMinDist: float
+    :param lMaxDist: range upper bound
+    :type lMaxDist: float
+
     :returns: [error, RC, []]
 
     * error=0 and RC=0 if the request is successful
@@ -573,14 +603,16 @@ def AUT_PS_SearchWindow():
     [GeoCom **p67**]
 
     Start PowerSearch inside the given PowerSearch window,
-    defined by AUT_SetSearchArea and optional by AUT_PS_SetRange.
+    defined by AUT_SetSearchArea and inside the optional range given by AUT_PS_SetRange.
 
     :returns: [error, RC, []]
 
     * error=0 and RC=0 if the request is successful
     * error=1 if not
+    	* RC = 7 if bad arguments were given (e.g. wrong format or wrong number of args)
+    	* RC = 26 if function not  successfully completed
         * RC = 8720 if the working area is not defined
-        * RC = 8710 if not target was found
+        * RC = 8710 if no target was found
 
     :rtype: list
     """
