@@ -23,7 +23,7 @@ Based on the work of [Maxim Artyom](https://github.com/art-mx/leica_ros_sph) and
 ### Documentation
 
 The documentation generation is automated using [Sphinx](http://www.sphinx-doc.org/en/master/).
-The scripts generating the documentation for ```alx_track.py``` and ```GeoCom.py``` are available in the folder ```scripts\documentation```.  
+The scripts generating the documentation for ```track.py``` and ```GeoCom.py``` are available in the folder ```scripts\documentation```.  
 To generate it on a Windows system : see ```scripts\documentation\make.bat```.  
 To generate it on a Unix system:
 
@@ -34,7 +34,7 @@ To generate it on a Unix system:
 
 Further information is available in ```scripts\documentation\Makefile```.
 
-To change the directory of the source files of the project where Sphinx looks up for comments (in this case the directory of ```alx_track.py```and ```GeoCom.py```), go in ```scripts\documentation\conf.py``` and set ```sys.path``` to the directory of your choice.
+To change the directory of the source files of the project where Sphinx looks up for comments (in this case the directory of ```track.py```and ```GeoCom.py```), go in ```scripts\documentation\conf.py``` and set ```sys.path``` to the directory of your choice.
 
 ## Installation
 ### Requirements
@@ -64,10 +64,10 @@ You can download the code on this repository:
 https://github.com/rvermeiren/Leica-GeoCOM-for-drone-tracking
 If the link is dead, contact [Nicolas Sorensen](https://github.com/nicolassorensen/) or [Rémy Vermeiren](https://github.com/rvermeiren/)
 
-##Run and Usage
+## Run and Usage
 ### Run
 ```
-$ C:\Python27\python.exe alx_track.py
+$ C:\Python27\python.exe track.py
 -d (verbose for debug)
 -b (big prism -- default = mini-prism)
 -p "port" (ex: "COM1" -- This can be found in "Device Manager" on Windows)
@@ -83,7 +83,8 @@ Use ```-h``` to show usage
                                   specify used baudrate [default: "COM3"]
   -d, --debug                     show debug information
   -B, --Big                       use 360 big prism
-  ```
+```
+
 ## Licenses
 
 The original work was under the following copyright :
